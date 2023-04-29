@@ -1,0 +1,105 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
+
+import 'your_classes.dart';
+
+class CheckValueWebSocketClient extends StatefulWidget {
+  @override
+  _CheckValueWebSocketClientState createState() => _CheckValueWebSocketClientState();
+}
+
+class _CheckValueWebSocketClientState extends State<CheckValueWebSocketClient> {
+  late IOWebSocketChannel _channel;
+  String _value = '';
+  Timer? _timeoutTimer;
+  bool _connecting = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectToWebSocket();
+  }
+
+  @override
+  void dispose() {
+    _disconnectFromWebSocket();
+    _cancelTimeoutTimer();
+    super.dispose();
+  }
+
+  Future<void> _connectToWebSocket() async {
+    _channel = IOWebSocketChannel.connect('ws://www.fellow7000.com/api/dev/checkobject');
+
+    _channel.stream.listen((event) {
+      _cancelTimeoutTimer();
+      setState(() {
+        _connecting = false;
+      });
+      final decodedResponse = CheckValueResponse.fromJson(json.decode(event));
+      // do something with the response
+    }, onError: (error) {
+      // handle error
+    }, onDone: () {
+      // handle connection closed
+    });
+
+    _startTimeoutTimer();
+  }
+
+  void _disconnectFromWebSocket() {
+    _channel.sink.close(status.goingAway);
+  }
+
+  void _onValueChanged(String value) {
+    _value = value;
+    final request = CheckValueRequest(
+      value: _value,
+      timeStamp: 'your_timeStamp',
+      apiController: 'your_apiController',
+      apiHandler: 'your_apiHandler',
+      isAuthorized: true,
+    );
+    _channel.sink.add(json.encode(request.toJson()));
+    _startTimeoutTimer();
+  }
+
+  void _startTimeoutTimer() {
+    _cancelTimeoutTimer();
+    _timeoutTimer = Timer(Duration(seconds: 60), () {
+      // handle timeout
+    });
+  }
+
+  void _cancelTimeoutTimer() {
+    _timeoutTimer?.cancel();
+    _timeoutTimer = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('WebSocket Client'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_connecting)
+              CircularProgressIndicator(),
+            TextField(
+              onChanged: _onValueChanged,
+              decoration: InputDecoration(
+                hintText: 'Enter a value',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

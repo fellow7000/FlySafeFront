@@ -1,0 +1,46 @@
+I am working on App in Flutter 3.0
+
+this is my class which I use to send a request to the server:
+class CheckValueRequest<T>{
+  final String value;
+  final String timeStamp;
+  final String apiController;
+  final String apiHandler;
+  final bool isAuthorized;
+
+  const CheckValueRequest({required this.value, required this.timeStamp, required this.apiController, required this.apiHandler, required this.isAuthorized});
+
+  Map<String, dynamic> toJson() {
+    return {
+      "Value" : value,
+      "TimeStamp" : timeStamp
+    };
+  }
+}
+
+This is what I get as response:
+class CheckValueResponse extends ApiBaseResponse {
+  final bool isValueValid;
+  final String timeStamp;
+
+  CheckValueResponse({required super.success, required this.isValueValid, required this.timeStamp, required super.errors});
+
+  factory CheckValueResponse.fromJson(Map<String, dynamic> json) {
+    return CheckValueResponse(
+      success: json["Success"]??false,
+      isValueValid: json["IsValueValid"]??false,
+      timeStamp: json["TimeStamp"]??"",
+      errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
+    );
+  }
+}
+
+
+I need a snippet in Flutter which:
+- sends request to the server using websocket
+- waits for the response (will come as a json object)
+- decodes response
+
+url for the websocket: www.fellow7000.com/api/dev/checkobject
+
+app uses riverpod for the statemanagement

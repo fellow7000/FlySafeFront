@@ -1,0 +1,164 @@
+Below are several snippets (separated by --------) to validate and input field of a TextFormField (Flutter), onChange call-back.
+Currently it is dobne by calling rest api post request after each user input in the field.
+I do not really like that is why I rebuilt the functionality on the back end to use websocket
+So, now please refactor front-end code (dart / flutter) to validate TextFormField input by
+- establish websocket connection (variable apihandler)
+- send the data for validation as an objet of the class CheckValueRequest
+- receive response from backend via websocket in the format described by the class CheckValueResponse
+- timeout shall be 15 seconds, if it is more than 15 seconds, input shall be considered as not valid
+- back end call shall be a method in the class BackEndCall
+
+----------------
+
+class CheckValueRequest<T>{
+  final String value;
+  final String timeStamp;
+  final String apiController;
+  final String apiHandler;
+  final bool isAuthorized;
+
+  const CheckValueRequest({required this.value, required this.timeStamp, required this.apiController, required this.apiHandler, required this.isAuthorized});
+
+  Map<String, dynamic> toJson() {
+    return {
+      "Value" : value,
+      "TimeStamp" : timeStamp
+    };
+  }
+}
+
+-------------
+    
+class CheckValueResponse extends ApiBaseResponse {
+  final bool isValueValid;
+  final String timeStamp;
+
+  CheckValueResponse({required super.success, required this.isValueValid, required this.timeStamp, required super.errors});
+
+  factory CheckValueResponse.fromJson(Map<String, dynamic> json) {
+    return CheckValueResponse(
+      success: json["Success"]??false,
+      isValueValid: json["IsValueValid"]??false,
+      timeStamp: json["TimeStamp"]??"",
+      errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
+    );
+  }
+}
+
+final checkValueRequestProvider = StateProvider<CheckValueRequest?>((ref) => null);
+
+var checkValueProvider = FutureProvider.autoDispose<CheckValueResponse>((ref) {
+  final checkValueRequest = ref.watch(checkValueRequestProvider);
+
+  return ref.watch(backEndGeneric).checkValue(checkValueRequest: checkValueRequest!);
+});
+
+--------------
+    
+abstract class IApiGeneric extends ApiCall {
+  Future<CheckValueResponse> checkValue({required CheckValueRequest checkValueRequest});
+}
+
+-------------
+    
+class ApiGeneric implements IApiGeneric {
+  final Uri webHostUri;
+
+  ApiGeneric({required this.webHostUri});
+
+  @override
+  Future<CheckValueResponse> checkValue({required CheckValueRequest checkValueRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri).callAPI(
+        callTypeAPI: CallTypeAPI.post,
+        body: checkValueRequest,
+        apiController: checkValueRequest.apiController,
+        apiHandler: checkValueRequest.apiHandler,
+        isAuthorised: checkValueRequest.isAuthorized)
+    ;
+
+    try {
+      var body = CheckValueResponse.fromJson(callResponse.body);
+      return body;
+    } catch ( e) {
+      debugPrint("api call ${checkValueRequest.apiHandler} triggered an exception ${e.toString()}");
+      return CheckValueResponse(success: false, isValueValid: false, timeStamp: "", errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
+    }
+  }
+}
+
+---------------
+
+class BackEndCall<T> {
+  final Uri webHostUri;
+  static const apiVer = "4.0";
+  static const String apiVersionHeader = 'x-version';
+  static const String localeHeader = "Accept-Language";
+  static const String tokenHeader = "Authorization";
+
+  static const callTimeOut = Duration(seconds: 60);
+
+  static const Map<String, String> basisHeaders = {
+    //"Access-Control-Allow-Origin": "*",
+    //"Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, HEAD",
+    //"Content-Type": "text/plain",
+    "Content-Type": "application/json",
+    apiVersionHeader : apiVer
+  };
+
+  //REST API return codes
+  static const int okCode = 200;
+  static const int badRequest400Code = 400;
+  static const int unauthorizedCode = 401;
+  static const int callExceptionCode = -1;
+  static const CallError callError = CallError(code: "CallTriggeredError", description: "Call triggered a Backend Error");
+  static const CallError callExceptionError = CallError(code: "CallTriggeredException", description: "Call triggered an Exception");
+  static const CallError unauthorizedError = CallError(code: "AuthorizationFailed", description: "Wrong user credentials");
+
+  BackEndCall({required this.webHostUri});
+
+  Future<CallResponse> callAPI({required CallTypeAPI callTypeAPI, String? locale, T? body, required String apiController, required apiHandler, bool isAuthorised = false}) async {
+    Map<String, String> headers = {};
+    headers.addEntries(basisHeaders.entries);
+
+    if (locale != null) {
+      headers.addEntries({localeHeader:locale}.entries);
+    }
+
+    if (isAuthorised) {
+      headers.addEntries({tokenHeader:"Bearer $accessToken"}.entries);
+    }
+
+    Uri uri = AppHelper.generateUri(host: webHostUri, apiController: apiController, apiHandler: apiHandler);
+
+    try {
+      http.Response response;
+
+      switch (callTypeAPI) {
+        case CallTypeAPI.get:
+          response = await http.get(uri, headers: headers).timeout(BackEndCall.callTimeOut);
+          break;
+        case CallTypeAPI.post:
+          dynamic payload = body;
+          debugPrint(jsonEncode(payload.toJson()));
+          response = await http.post(uri, headers: headers, body: jsonEncode(payload.toJson())).timeout(BackEndCall.callTimeOut);
+          break;
+        default:
+          throw UnimplementedError("Wrong API Type call");
+      }
+
+      if (response.statusCode == BackEndCall.okCode) {
+        debugPrint("api call success $uri");
+        return CallResponse(success: true, statusCode: BackEndCall.okCode, body: json.decode(response.body), callError: []);
+      } else if (response.statusCode == BackEndCall.unauthorizedCode) {
+        debugPrint("Authorization error during api call $uri");
+        return CallResponse(success: false, statusCode: response.statusCode, callError: [unauthorizedError]);
+      } else {
+        debugPrint("api call $uri failed with error: ${utf8.decode(response.bodyBytes)}");
+        return CallResponse(success: false, statusCode: response.statusCode, callError: [CallError(code: callError.code, description: utf8.decode(response.bodyBytes))]);
+      }
+    } catch (e) {
+      debugPrint("api call $uri triggered exception ${e.toString()}");
+      return CallResponse(success: false, statusCode: BackEndCall.callExceptionCode, callError:  [CallError(code: callExceptionError.code, description: e.toString())]);
+    }
+  }
+}
