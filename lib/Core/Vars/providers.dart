@@ -70,10 +70,7 @@ final clubNameValidationStampProvider = StateProvider<String>((ref) => DateTime.
 
 //Implementation with Future
 final publicClubsProvider = FutureProvider.autoDispose<List<String>>((ref) {
-  return ref.watch(backEndClub).getPublicClubs();});
-
-final getUserProfileProvider = FutureProvider.autoDispose<UserProfileResponse>((ref) {
-  return ref.watch(backEndUser).getUserProfile();
+  return ref.watch(backEndClub).getPublicClubs();
 });
 
 final userProfileProvider = StateProvider<UserProfileResponse?>((ref) => null);

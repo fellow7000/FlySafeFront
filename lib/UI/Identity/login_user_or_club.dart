@@ -320,7 +320,7 @@ class LogInUserOrClubWidget extends ConsumerState<LogInUserOrClub> {
 
     loginResult.then((data) {
       ref.read(_isLoggingInProvider.notifier).state = false;
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         IdentityHelper.processSignInUpResponse(ref: ref, loginName: loginName, hash: data.hash, token: data.accessToken, logAs: data.logAs);
         ref.read(_isError.notifier).state = false;
         _callErrors = [];

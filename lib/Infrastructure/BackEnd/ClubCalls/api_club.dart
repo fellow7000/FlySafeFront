@@ -1,12 +1,14 @@
 import 'package:fs_front/Core/DTO/Base/call_response.dart';
 import 'package:fs_front/Core/DTO/Club/add_club_request.dart';
 import 'package:fs_front/Core/DTO/Club/add_club_response.dart';
+import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_request.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_response.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fs_front/Core/DTO/Club/get_clubs_response.dart';
 
+import '../../../Core/DTO/Club/club_details_response.dart';
 import '../../../Core/Vars/exceptions.dart';
 import 'i_api_club.dart';
 import '../backend_call.dart';
@@ -57,7 +59,7 @@ class ApiClub implements IApiClub {
         throw Exception("exception during body encoding ${e.toString()}");
       }
     } else {
-      return AddClubResponse(success: false, clubID: "", errors: callResponse.callError!);
+      return AddClubResponse(resultCode: AppResultCode.conflict, clubID: "", errors: callResponse.callError!);
     }
   }
 
@@ -78,7 +80,27 @@ class ApiClub implements IApiClub {
         throw Exception("exception during body encoding ${e.toString()}");
       }
     } else {
-      return JoinClubResponse(success: false, errors: callResponse.callError!);
+      return JoinClubResponse(resultCode: AppResultCode.conflict, errors: callResponse.callError!);
+    }
+  }
+
+  @override
+  Future<ClubDetailsResponse> getClubDetails({required ClubDetailsRequest clubDetailsRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.post, apiController: IApiClub.clubController, apiHandler: IApiClub.getClubDetailsHandler, body: clubDetailsRequest, isAuthorised: true);
+
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
+      try {
+        var body = ClubDetailsResponse.fromJson(callResponse.body);
+        return body;
+      } catch (e) {
+        debugPrint("api call ${IApiClub.getClubDetailsHandler} triggered an exception during body encoding ${e.toString()}");
+        throw Exception("exception during body encoding ${e.toString()}");
+      }
+    } else {
+      return ClubDetailsResponse(resultCode: AppResultCode.conflict, errors: callResponse.callError!, club: null);
     }
   }
 

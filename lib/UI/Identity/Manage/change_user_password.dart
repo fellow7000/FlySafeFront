@@ -377,7 +377,7 @@ class ChangeUserPassword extends ConsumerWidget {
     var changeResult = ref.watch(changeUserPasswordProvider.future);
 
     changeResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
         IdentityHelper.processUserPasswordChange(ref: ref, newHash: data.newUserPasswordHash, newToken: data.newAccessToken);
         AppHelper.showSnack(context: context, message: "PasswordChangeSuccess".tr());

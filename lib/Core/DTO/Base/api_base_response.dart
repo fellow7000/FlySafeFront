@@ -1,8 +1,10 @@
+import 'package:fs_front/Core/Vars/enums.dart';
+
 import 'call_error.dart';
 
 class ApiBaseResponse {
-  final bool success;
+  AppResultCode resultCode;
   final List<CallError> errors;
 
-  ApiBaseResponse({required this.success, required this.errors});
+  ApiBaseResponse({required this.resultCode, required this.errors});
 }

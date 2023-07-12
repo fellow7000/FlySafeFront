@@ -135,7 +135,7 @@ class AppHelper {
     textStyleTitleMedium = Theme.of(context).textTheme.titleMedium!.apply(fontSizeDelta: fontSizeDelta);
     textStyleHeadlineSmall = Theme.of(context).textTheme.headlineSmall!.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta);
     textStyleHeadlineSmallButton = Theme.of(context).textTheme.headlineSmall!.apply(fontSizeDelta: fontSizeDelta, color: Colors.white);
-    textStyleBodyLarge = Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: fontSizeDelta);
+    textStyleBodyLarge = Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: fontSizeDelta + (16 - Theme.of(context).textTheme.bodyLarge!.fontSize!));
     textStyleBodyMedium = Theme.of(context).textTheme.bodyMedium!.apply(fontSizeDelta: fontSizeDelta);
   }
 

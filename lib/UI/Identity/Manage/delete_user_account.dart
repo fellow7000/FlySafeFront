@@ -139,7 +139,7 @@ class DeleteUserAccountWidget extends ConsumerState<DeleteUserAccount> {
     var deleteResult = ref.watch(deleteUserAccountProvider.future);
 
     deleteResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ScaffoldMessenger.of(globalContext).showSnackBar(SnackBar(
             content: Text(
           'UserAccountDelete'.tr(),

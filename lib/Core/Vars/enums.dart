@@ -83,3 +83,67 @@ enum NoteType {
   folder,
   note
 }
+
+///AppResultCode Section Start
+enum AppResultCode {
+  ok,
+  unauthorized,
+  notFound,
+  forbidden,
+  conflict,
+  unknown
+}
+
+Map<AppResultCode, int> _resultCodes = {
+  AppResultCode.ok: 200,
+  AppResultCode.unauthorized: 401,
+  AppResultCode.forbidden: 403,
+  AppResultCode.notFound: 404,
+  AppResultCode.conflict: 409,
+  AppResultCode.unknown: 999
+};
+
+int getAppResultCode(AppResultCode code) {
+  return _resultCodes[code]??-1;
+}
+
+AppResultCode getAppResultEnum(int code) {
+  return _resultCodes.entries.firstWhere((entry) => entry.value == code, orElse: () => MapEntry(AppResultCode.unknown, code)).key;
+}
+///AppResultCode Section End
+
+///AppActions Section Start
+///The enum shall be equal to the enum in FlySafeWeb AppAction in Enums.cs (beside of the register of the first latter
+enum AppAction
+{
+  createClub,
+  readClubBaseInfo,
+  getClubMembersList,
+  editClubBaseInfo,
+  getClubMembers,
+  changeClubPassword,
+  handoverClub,
+  joinClub,
+  leaveClub,
+  deleteClub,
+  assignOwner,
+  unassignOwner,
+  assignManager,
+  unassignManager,
+  removeManager,
+  inviteMember,
+  removeMember,
+  createChecklist,
+  editChecklist,
+  readChecklist,
+  handoverChecklist,
+  createModel,
+  editModel,
+  readModel,
+  handoverModel,
+  createAircraft,
+  editAircraft,
+  readAircraft,
+  handoverAircraft,
+}
+///AppActions Section End

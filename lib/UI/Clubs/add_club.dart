@@ -14,6 +14,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/add_club_request.dart';
 import '../../Core/DTO/Club/add_club_response.dart';
+import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/enums.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
@@ -49,7 +50,10 @@ class AddClubWidget extends ConsumerState<AddClub> {
     return textController;
   });
 
+  final TextEditingController _clubCommentInputController = TextEditingController();
+
   final FocusNode _focusClubName = FocusNode();
+  final FocusNode _focusClubComment = FocusNode();
   final FocusNode _focusClubPassword = FocusNode();
   final FocusNode _focusConfirmClubPassword = FocusNode();
   final FocusNode _focusClubVisibility = FocusNode();
@@ -90,6 +94,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
   @override
   void dispose() {
     _channel.sink.close();
+    _clubCommentInputController.dispose();
+    _clubPasswordInputController.dispose();
+    _clubPasswordConfirmationInputController.dispose();
     super.dispose();
   }
 
@@ -138,41 +145,66 @@ class AddClubWidget extends ConsumerState<AddClub> {
       iconColor = Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark;
     }
 
-    InputDecoration decor = InputDecoration(
-        labelText: "ClubName".tr(),
-        labelStyle: textStyleBodyLarge,
-        prefixIcon : validationStatus == ValidationStatus.validating
-            ? const FittedBox(fit: BoxFit.scaleDown, child: _validateInProgress)
-            : Icon(
-          clubIcon,
-          size: iconSize,
-          color: iconColor,
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(
-            clearTextIcon,
-            size: iconSize,
-          ),
-          onPressed: () => _clearClubNameInputField(context),
-        ));
-
     //Club Name
     fields.add(
       TextFormField(
-          //fieldNotValidLabel: "ClubNameAlreadyTaken".tr(),
           controller: ref.watch(_clubNameInputControllerProvider),
           // inputFormatters: [
           //   FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
           // ],
           focusNode: _focusClubName,
-          //readOnly: isReadOnly, //TODO: probably we need this read only setting
+          readOnly: isReadOnly,
           style: textStyleTitleLarge,
-          decoration: decor,
+          decoration: InputDecoration(
+              labelText: "ClubName".tr(),
+              labelStyle: textStyleBodyLarge,
+              prefixIcon : validationStatus == ValidationStatus.validating
+                  ? const FittedBox(fit: BoxFit.scaleDown, child: _validateInProgress)
+                  : Icon(
+                clubIcon,
+                size: iconSize,
+                color: iconColor,
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  clearTextIcon,
+                  size: iconSize,
+                ),
+                onPressed: () => _clearClubNameInputField(context),
+              )),
           onChanged: (value) => _sendNameForValidation(value),
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: (_) => ref.watch(_isClubNameValidProvider) ? null : ref.watch(_clubNameValidatorMessage),
-          //onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPassword)
+          onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubComment)
         ),
+    );
+
+    //Club Comment
+    fields.add(
+      TextFormField(
+        controller: _clubCommentInputController,
+        focusNode: _focusClubComment,
+        readOnly: isReadOnly,
+        style: textStyleTitleLarge,
+        decoration: InputDecoration(
+            labelText: "Comment".tr(),
+            labelStyle: textStyleBodyLarge,
+            hintText: "Optional".tr(),
+            hintStyle: textStyleBodyMedium,
+            prefixIcon : Icon(
+              commentIcon,
+              size: iconSize,
+              color: Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                clearTextIcon,
+                size: iconSize,
+              ),
+              onPressed: () => _clearClubCommentInputField(),
+            )),
+        onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPassword)
+      ),
     );
 
     //Club Password
@@ -272,8 +304,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
                         onPressed: _clearClubPasswordConfirmation),
                   ])),
           onChanged: (_) => _validateClubPassword(),
-          onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubVisibility),
-          //((value) => ref.watch(_isSignUpPossibleProvider) ? _signUp() : null),
+          onFieldSubmitted: ref.watch(_isAddClubPossibleProvider)? (val) => _addClub():null,
           validator: (_) => _clubPasswordConfirmationValidator,
         );
       }
@@ -412,15 +443,15 @@ class AddClubWidget extends ConsumerState<AddClub> {
     try {
       final checkResult = CheckValueResponse.fromJson(jsonDecode(message));
 
-      if (checkResult.success && checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      if (checkResult.resultCode == AppResultCode.ok && checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
         ref.read(_clubNameValidatorMessage.notifier).state = null;
         ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.ok;
         ref.read(_isClubNameValidProvider.notifier).state = true;
-      } else if (checkResult.success && !checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      } else if (checkResult.resultCode == AppResultCode.ok && !checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
         ref.read(_clubNameValidatorMessage.notifier).state = "ClubNameAlreadyTaken".tr();
         ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
         ref.read(_isClubNameValidProvider.notifier).state = false;
-      } else if (!checkResult.success || checkResult.timeStamp == ""){
+      } else if (checkResult.resultCode != AppResultCode.ok || checkResult.timeStamp == ""){
         ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
         ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
         ref.read(_isClubNameValidProvider.notifier).state = false;
@@ -440,6 +471,11 @@ class AddClubWidget extends ConsumerState<AddClub> {
     _sendNameForValidation("");
     _checkAddClubPossible();
     FocusScope.of(context).requestFocus(_focusClubName);
+  }
+
+  void _clearClubCommentInputField() {
+    _clubCommentInputController.text = "";
+    FocusScope.of(context).requestFocus(_focusClubComment);
   }
 
   void _processEmptyClubName() {
@@ -468,11 +504,13 @@ class AddClubWidget extends ConsumerState<AddClub> {
   void _clearClubPassword() {
     _clubPasswordInputController.text = "";
     _validateClubPassword();
+    FocusScope.of(context).requestFocus(_focusClubPassword);
   }
 
   void _clearClubPasswordConfirmation() {
     _clubPasswordConfirmationInputController.text = "";
     _validateClubPassword();
+    FocusScope.of(context).requestFocus(_focusConfirmClubPassword);
   }
 
   void _toggleClubVisibility(bool val) {
@@ -484,6 +522,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
   }
 
   _addClub() {
+    if (!ref.watch(_isAddClubPossibleProvider)) return;
+
     _callErrors = [];
 
     ref.read(_formStateProvider.notifier).state = AppFormState.processing;
@@ -491,14 +531,14 @@ class AddClubWidget extends ConsumerState<AddClub> {
     ref.read(addClubRequestProvider.notifier).state = AddClubRequest(
         clubName: ref.watch(_clubNameInputControllerProvider).text,
         clubPassword: _clubPasswordInputController.text,
-        clubComment: "",
+        clubComment: _clubCommentInputController.text,
         clubType: ref.read(_isClubPublicProvider.notifier).state?ClubType.publicClub:ClubType.nonListedClub,
         endDevice: appPlatform);
 
     var addClubResult = ref.watch(addClubProvider.future);
 
     addClubResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
         AppHelper.showSnack(context: context, message: "ClubCreated".tr());
         ref.invalidate(getUserProfileProvider);

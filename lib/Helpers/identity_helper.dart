@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fs_front/Core/DTO/Generic/allowed_actions_dto.dart';
 import 'package:fs_front/Helpers/preferences_helper.dart';
 import 'package:go_router/go_router.dart';
 
@@ -81,6 +82,9 @@ class IdentityHelper {
     ref.read(authStateProvider.notifier).state = LogAs.none;
     requestStartUpSignIn = true;
     //TODO: invalidate provider for main form?..
+  }
 
+  static bool isActionAllowed({required AppAction appAction, required AllowedActionsDTO allowedActions}) {
+    return allowedActions.allowedActions.contains(appAction.name.toUpperCase());
   }
 }

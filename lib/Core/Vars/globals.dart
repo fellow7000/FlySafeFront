@@ -33,7 +33,7 @@ const List<List<String>> dateFormats = [dateISO, dateEU, dateUS];
 const int minUserPasswordLength = 6;
 String accessToken = "";
 bool requestStartUpSignIn = false; //if we need to sign-in during app startup of toggling app mode
-bool loadUserOrClubProfile = true;
+bool loadUserOrClubProfile = true; //if we need to load user / club profile
 
 //Icons
 const double appIconBasisSize = 24;
@@ -54,6 +54,7 @@ const IconData errorIcon = Icons.error;
 const IconData calenderIcon = Icons.calendar_month_outlined;
 const IconData addObjectIcon = Icons.add;
 const IconData joinClubIcon = Icons.input;
+const IconData commentIcon = Icons.edit_note;
 
 //window size & margins
 late double windowWidth;

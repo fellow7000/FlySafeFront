@@ -142,7 +142,7 @@ class ChangeUserEmail extends ConsumerWidget {
     var changeResult = ref.watch(changeUserEmailProvider.future);
 
     changeResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
         AppHelper.showSnack(context: context, message: "EmailChangeSuccess".tr());
         ref.invalidate(getUserProfileProvider);

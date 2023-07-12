@@ -4,6 +4,7 @@ import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_request.d
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_response.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/delete_user_account_request.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/delete_user_account_response.dart';
+import 'package:fs_front/Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/user_profile_response.dart';
 import 'package:fs_front/Core/DTO/Identity/check_username_free_request.dart';
 
@@ -21,12 +22,12 @@ import '../Infrastructure/BackEnd/IdentityCalls/i_api_identity.dart';
 class FakeBackEndIdentity implements IApiIdentity {
   @override
   Future<AuthentificationResponse> signIn({required AuthentificationRequest authentificationRequest}) {
-    return Future.delayed(const Duration(seconds: 1), () => AuthentificationResponse(success: true, accessToken: 'accessToken', logAs: LogAs.user, hash: "#%@S", errors: []));
+    return Future.delayed(const Duration(seconds: 1), () => AuthentificationResponse(resultCode: AppResultCode.ok, accessToken: 'accessToken', logAs: LogAs.user, hash: "#%@S", errors: []));
   }
 
   @override
   Future<ResetUserPasswordResponse> requestUserPasswordReset({required ResetUserPasswordRequest resetUserPasswordRequest}) {
-    return Future.delayed(const Duration(seconds: 2), () => ResetUserPasswordResponse(success: true, email: resetUserPasswordRequest.email, errors: []));
+    return Future.delayed(const Duration(seconds: 2), () => ResetUserPasswordResponse(resultCode: AppResultCode.ok, email: resetUserPasswordRequest.email, errors: []));
   }
 
   @override
@@ -44,6 +45,12 @@ class FakeBackEndIdentity implements IApiIdentity {
   @override
   Future<UserProfileResponse> getUserProfile() async {
     // TODO: implement getUserProfile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions() {
+    // TODO: implement getClubsRolesActions
     throw UnimplementedError();
   }
 

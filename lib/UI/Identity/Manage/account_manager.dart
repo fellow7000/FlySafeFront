@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/user_profile_response.dart';
 import 'package:fs_front/Core/Vars/exceptions.dart';
 import 'package:fs_front/UI/Elements/basis_form.dart';
-import 'package:fs_front/UI/Identity/Manage/user_profile.dart';
+import 'package:fs_front/UI/Identity/Manage/user_or_club_profile.dart';
 
 import '../../../Core/Vars/enums.dart';
 import '../../../Core/Vars/globals.dart';
@@ -42,13 +42,13 @@ class AccountManager extends ConsumerWidget {
             break;
 
           case LogAs.club:
-            UserProfileResponse clubProfile = UserProfileResponse(success: true,
+            UserProfileResponse clubProfile = UserProfileResponse(resultCode: AppResultCode.ok,
                 userName: ref
                     .read(userOrClubNameProvider.notifier)
                     .state,
                 email: "",
                 createdOn: DateTime.now().toUtc().toIso8601String(),
-                clubAndRoleDTOList: [],
+                //clubAndRoleDTOList: [],
                 errors: []);
             profileWidget = UserOrClubProfile(userProfile: clubProfile);
             break;
@@ -79,7 +79,7 @@ class AccountManager extends ConsumerWidget {
   }
 
   UserOrClubProfile _toUserProfile(UserProfileResponse userProfile, WidgetRef ref) {
-    userProfile.clubAndRoleDTOList.sort((a, b) => a.clubName.compareTo(b.clubName));
+    //userProfile.clubAndRoleDTOList.sort((a, b) => a.clubName.compareTo(b.clubName));
     return UserOrClubProfile(userProfile: userProfile);
   }
 }

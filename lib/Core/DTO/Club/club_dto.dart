@@ -1,5 +1,9 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
+
 import '../../Entities/Club/club.dart';
 import '../../Vars/enums.dart';
+import '../../Vars/providers.dart';
 
 class ClubDTO extends Club {
 

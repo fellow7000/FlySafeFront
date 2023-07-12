@@ -17,8 +17,8 @@ class ClubDialog {
       desc: explanationText,
       buttons: [
         DialogButton(
-          onPressed: () => Navigator.of(context).pop(false), //this is for Android only. for IOS we need to figure it out //Navigator.of(context).pop(true),
-          color: Colors.green,
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(), //this is for Android only. for IOS we need to figure it out //Navigator.of(context).pop(true),
+          color: Colors.blue,
           child: Text(
             okLabel,
             style: Theme.of(context).textTheme.headlineSmall!.apply(fontSizeDelta: deltaFontSize, color: Colors.white),

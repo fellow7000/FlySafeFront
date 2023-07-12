@@ -203,7 +203,7 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
     var passwordResetResult = ref.watch(resetUserPasswordProvider.future);
 
     passwordResetResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_resetStateProvider.notifier).state = AppFormState.resultOk;
       } else {
         _callErrors = data.errors;

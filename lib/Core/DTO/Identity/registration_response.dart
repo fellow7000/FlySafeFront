@@ -13,26 +13,29 @@ class RegistrationResponse extends ApiBaseResponse {
   final String clubName;
   final LogAs logAs;
 
-  RegistrationResponse({required super.success,
+  RegistrationResponse({
+    required super.resultCode,
     required this.userName,
     required this.accessToken,
     required this.userPasswordHash,
     required this.clubName,
     required this.logAs,
-    required super.errors});
+    required super.errors,
+  });
 
   factory RegistrationResponse.fromJson(Map<String, dynamic> json) {
     return RegistrationResponse(
-      success: json["Success"],
-      userName: json["UserName"]??"",
-      accessToken: json["AccessToken"]??"",
-      userPasswordHash: json["UserPasswordHash"]??"",
-      clubName: json["ClubName"]??"",
+      resultCode: getAppResultEnum(json["ResultCode"]),
+      userName: json["UserName"] ?? "",
+      accessToken: json["AccessToken"] ?? "",
+      userPasswordHash: json["UserPasswordHash"] ?? "",
+      clubName: json["ClubName"] ?? "",
       logAs: LogAs.values[json["LogAs"]],
-      errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
+      errors: List.of(json["Errors"] ?? []).map((e) => CallError.fromJson(e)).toList(),
     );
   }
 }
+
 
 final registrationRequestProvider = StateProvider<RegistrationRequest?>((ref) => null);
 

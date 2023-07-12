@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../Vars/enums.dart';
 import '../../../Vars/providers.dart';
 import '../../Base/api_base_response.dart';
 import '../../Base/call_error.dart';
@@ -9,18 +10,20 @@ class ChangeUserEmailResponse extends ApiBaseResponse {
   final String newEmail;
 
   ChangeUserEmailResponse({
-    required super.success,
+    required super.resultCode,
     required this.newEmail,
-    required super.errors});
+    required super.errors,
+  });
 
   factory ChangeUserEmailResponse.fromJson(Map<String, dynamic> json) {
     return ChangeUserEmailResponse(
-      success: json["Success"],
-      newEmail: json["NewEmail"]??"",
-      errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
+      resultCode: getAppResultEnum(json["ResultCode"]),
+      newEmail: json["NewEmail"] ?? "",
+      errors: List.of(json["Errors"] ?? []).map((e) => CallError.fromJson(e)).toList(),
     );
   }
 }
+
 
 final changeUserEmailRequestProvider = StateProvider<ChangeUserEmailRequest?>((ref) => null);
 

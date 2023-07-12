@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/join_club_request.dart';
 import '../../Core/DTO/Club/join_club_response.dart';
+import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/enums.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
@@ -242,7 +243,7 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
     var joinClubResult = ref.watch(joinClubProvider.future);
 
     joinClubResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
         AppHelper.showSnack(context: context, message: "WelcomeToClub".tr(args: [_clubNameInputController.text]));
         ref.invalidate(getUserProfileProvider);

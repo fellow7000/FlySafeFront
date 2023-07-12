@@ -137,42 +137,9 @@ class UserOrClubProfile extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: FittedBox(fit: BoxFit.scaleDown, child: Text("ClubManagement".tr(), style: textStyleTitleLarge,))),
         trailing: Icon(chevronExpand, size: iconSize),
-        onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => ClubManager(/*userProfile: userProfile,*/))),
+        onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => const ClubManager())),
       ),
     ));
-
-    fields.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: DataTable(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            columns: [
-              DataColumn(label: Text('Club'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold),)),
-              DataColumn(label: Text('Role'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
-            ],
-            rows: userProfile.clubAndRoleDTOList.asMap().entries.map((entry) {
-              final index = entry.key;
-              final clubAndRoleDTO = entry.value;
-              return DataRow(
-                cells: [
-                  DataCell(Text(clubAndRoleDTO.clubName, style: textStyleTitleMedium)),
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: clubAndRoleDTO.roles.map((roleTuple) {
-                        return Text(roleTuple.item2.tr(), style: textStyleTitleMedium);
-                      }).toList(),
-                    ),
-                  ),
-                ],
-                color: index.isOdd ? null : MaterialStateProperty.all<Color>(evenRowColor),
-              );
-            }).toList(),
-          ),
-        )
-    );
 
     fields.add(const Divider(
       indent: divIntent,

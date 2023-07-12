@@ -29,7 +29,7 @@ class ApiGeneric implements IApiGeneric {
       return body;
     } catch ( e) {
       debugPrint("api call ${checkValueRequest.apiHandler} triggered an exception ${e.toString()}");
-      return CheckValueResponse(success: false, isValueValid: false, timeStamp: "", errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
+      return CheckValueResponse(resultCode: AppResultCode.conflict, isValueValid: false, timeStamp: "", errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
     }
   }
 }

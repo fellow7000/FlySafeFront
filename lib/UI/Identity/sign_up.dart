@@ -66,6 +66,8 @@ class SignUpWidget extends ConsumerState<SignUp> {
     return textController;
   });
 
+  final TextEditingController _clubCommentInputController = TextEditingController();
+
   final TextEditingController _userPasswordConfirmationInputController = TextEditingController();
 
   //final TextEditingController _clubNameInputController = TextEditingController();
@@ -87,8 +89,9 @@ class SignUpWidget extends ConsumerState<SignUp> {
   final FocusNode _focusUserPasswordConfirmation = FocusNode();
   final FocusNode _focusNodeSignUp = FocusNode();
   final FocusNode _focusClubName = FocusNode();
+  final FocusNode _focusClubComment = FocusNode();
   final FocusNode _focusClubPassword = FocusNode();
-  final FocusNode _focusConfirmClubPassword = FocusNode();
+  final FocusNode _focusClubPasswordConfirmation = FocusNode();
   final FocusNode _focusClubVisibility = FocusNode();
 
   final _checkUserNameValidProvider = StateProvider<CheckValueRequest?>((ref) => const CheckValueRequest(value: "",timeStamp: "", apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.checkUserNameFreeHandler, isAuthorized: false));
@@ -121,6 +124,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
   void dispose() {
     super.dispose();
     _userPasswordConfirmationInputController.dispose();
+    _clubCommentInputController.dispose();
     //_clubNameInputController.dispose();
     _clubPasswordInputController.dispose();
     _clubPasswordConfirmationInputController.dispose();
@@ -129,7 +133,10 @@ class SignUpWidget extends ConsumerState<SignUp> {
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(_signUpStateProvider);
+    final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final iconSize = appIconBasisSize + ref.watch(deltaFontSizeProvider);
+    final myFont = Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider));
+    debugPrint(myFont.toString());
     final isReadOnly = formState == AppFormState.processing;
     final isError = (formState == AppFormState.httpError || formState == AppFormState.exception || formState == AppFormState.resultFailed);
 
@@ -331,7 +338,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
                 // ],
                 focusNode: _focusClubName,
                 readOnly: isReadOnly,
-                style: Theme.of(context).textTheme.titleLarge!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider)),
+                style: Theme.of(context).textTheme.titleLarge!.apply(fontSizeDelta: fontSizeDelta),
                 decoration: InputDecoration(
                     labelText: "ClubName".tr(),
                     labelStyle: Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider)),
@@ -339,6 +346,34 @@ class SignUpWidget extends ConsumerState<SignUp> {
                     hintStyle: Theme.of(context).textTheme.bodyMedium!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider)),),
                 groupValidation: _checkSignUpPossible,
                 onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPassword)),
+
+            const SizedBox(height: myTopPadding,),
+
+            //Club Comment
+            TextFormField(
+                controller: _clubCommentInputController,
+                focusNode: _focusClubComment,
+                readOnly: isReadOnly,
+                style: textStyleTitleLarge,
+                decoration: InputDecoration(
+                    labelText: "Comment".tr(),
+                    labelStyle: Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: fontSizeDelta),
+                  hintText: "Optional".tr(),
+                  hintStyle: Theme.of(context).textTheme.bodyMedium!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider)),
+                    prefixIcon : Icon(
+                      commentIcon,
+                      size: iconSize,
+                      color: Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        clearTextIcon,
+                        size: iconSize,
+                      ),
+                      onPressed: () => _clearClubCommentInputField(),
+                    )),
+                onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPassword)
+            ),
 
             const SizedBox(height: myTopPadding,),
 
@@ -380,7 +415,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
                               onPressed: _clearClubPassword),
                         ])),
                 onChanged: (_) => _validateClubPassword(),
-                onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusConfirmClubPassword),
+                onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPasswordConfirmation),
                 validator: null,
               );
             }
@@ -402,7 +437,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
 
               return TextFormField(
                 controller: _clubPasswordConfirmationInputController,
-                focusNode: _focusConfirmClubPassword,
+                focusNode: _focusClubPasswordConfirmation,
                 style: Theme
                     .of(context)
                     .textTheme
@@ -585,14 +620,21 @@ class SignUpWidget extends ConsumerState<SignUp> {
     _checkSignUpPossible();
   }
 
+  void _clearClubCommentInputField() {
+    _clubCommentInputController.text = "";
+    FocusScope.of(context).requestFocus(_focusClubComment);
+  }
+
   void _clearClubPassword() {
     _clubPasswordInputController.text = "";
     _validateClubPassword();
+    FocusScope.of(context).requestFocus(_focusClubPassword);
   }
 
   void _clearClubPasswordConfirmation() {
     _clubPasswordConfirmationInputController.text = "";
     _validateClubPassword();
+    FocusScope.of(context).requestFocus(_focusClubPasswordConfirmation);
   }
 
   void _validateClubPassword() {
@@ -631,14 +673,14 @@ class SignUpWidget extends ConsumerState<SignUp> {
         userPassword: ref.read(_userPasswordInputControllerProvider).text,
         clubName: ref.watch(_clubNameInputControllerProvider).text.isNotEmpty?ref.watch(_clubNameInputControllerProvider).text:ref.read(_userNameInputControllerProvider).text,
         clubPassword: _clubPasswordInputController.text,
-        clubComment: "",
+        clubComment: _clubCommentInputController.text,
         clubType: ref.read(_isClubPublicProvider.notifier).state?ClubType.publicClub:ClubType.nonListedClub,
         endDevice: appPlatform);
 
     var registrationResult = ref.watch(registrationProvider.future);
 
     registrationResult.then((data) {
-      if (data.success) {
+      if (data.resultCode == AppResultCode.ok) {
         ref.read(_signUpStateProvider.notifier).state = AppFormState.resultOk;
         IdentityHelper.processSignInUpResponse(ref: ref, loginName: data.userName, hash: data.userPasswordHash, token: data.accessToken, logAs: data.logAs);
         Navigator.pop(context);

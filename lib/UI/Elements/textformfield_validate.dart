@@ -294,15 +294,15 @@ class TextFormFieldOnlineValidate extends ConsumerWidget {
       return;
     }
 
-    if (checkResult.success && checkResult.isValueValid && checkResult.timeStamp == ref.read(timeStampChecker.notifier).state) {
+    if (checkResult.resultCode == AppResultCode.ok && checkResult.isValueValid && checkResult.timeStamp == ref.read(timeStampChecker.notifier).state) {
       ref.read(_fieldValidatorMessage.notifier).state = null;
       ref.read(validationStateProvider.notifier).state = ValidationStatus.ok;
       ref.read(isFieldValidProvider.notifier).state = true;
-    } else if (checkResult.success && !checkResult.isValueValid && checkResult.timeStamp == ref.read(timeStampChecker.notifier).state) {
+    } else if (checkResult.resultCode == AppResultCode.ok && !checkResult.isValueValid && checkResult.timeStamp == ref.read(timeStampChecker.notifier).state) {
       ref.read(_fieldValidatorMessage.notifier).state = fieldNotValidLabel;
       ref.read(validationStateProvider.notifier).state = ValidationStatus.notValid;
       ref.read(isFieldValidProvider.notifier).state = false;
-    } else if (!checkResult.success || checkResult.timeStamp == ""){
+    } else if (checkResult.resultCode != AppResultCode.ok || checkResult.timeStamp == ""){
       ref.read(_fieldValidatorMessage.notifier).state = "ValidationError".tr();
       ref.read(validationStateProvider.notifier).state = ValidationStatus.failed;
       ref.read(isFieldValidProvider.notifier).state = false;

@@ -8,6 +8,7 @@ import 'package:fs_front/Core/DTO/Identity/registration_request.dart';
 import '../../../Core/DTO/Identity/Manage/change_user_email.request.dart';
 import '../../../Core/DTO/Identity/Manage/change_user_email_response.dart';
 import '../../../Core/DTO/Identity/Manage/change_user_password_response.dart';
+import '../../../Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import '../../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../../Core/DTO/Identity/authentification_requrest.dart';
 import '../../../Core/DTO/Identity/authentification_response.dart';
@@ -28,6 +29,7 @@ abstract class IApiIdentity extends ApiCall {
   static const String changeUserPasswordHandler = "changeuserpassword";
   static const String changeUserEmailHandler = "changeuseremail";
   static const String deleteUserAccountHandler = "deleteuserprofile";
+  static const String getClubsRolesActionsHandler = "getuserclubs";
 
   //User or Club Sign-in
   Future<RegistrationResponse> signUp({required RegistrationRequest registrationRequest});
@@ -40,6 +42,8 @@ abstract class IApiIdentity extends ApiCall {
   Future<ResetUserPasswordResponse> requestUserPasswordReset({required ResetUserPasswordRequest resetUserPasswordRequest});
 
   Future<UserProfileResponse> getUserProfile();
+
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions();
 
   Future<ChangeUserPasswordResponse> changeUserPassword({required ChangeUserPasswordRequest changeUserPasswordRequest});
 

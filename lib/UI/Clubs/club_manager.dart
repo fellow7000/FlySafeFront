@@ -2,145 +2,64 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fs_front/Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import 'package:fs_front/UI/Clubs/add_club.dart';
+import 'package:fs_front/UI/Clubs/club_list_and_actions.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 
 import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
+import '../../Core/Vars/enums.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
+import '../Elements/api_error_tile_retry.dart';
 import '../Elements/basis_form.dart';
 import '../Themes/app_themes.dart';
 import 'join_club.dart';
 
 class ClubManager extends ConsumerStatefulWidget {
-  const ClubManager({/*required this.userProfile, */Key? key})
+  const ClubManager({Key? key})
       : super(key: key);
-
-  //final UserProfileResponse userProfile;
 
   @override
   ConsumerState<ClubManager> createState() => ClubManagerWidget();
 }
 
-class ClubManagerWidget extends ConsumerState<ClubManager> /*ConsumerWidget*/ {
-  //final UserProfileResponse userProfile;
+class ClubManagerWidget extends ConsumerState<ClubManager> {
 
   static const double myTopPadding = 0;
   static const double divIntent = 10;
 
-  //const ClubManagerWidget();
-
   @override
-  Widget build(BuildContext context/*, WidgetRef ref*/) {
-    final fontSizeDelta = ref.watch(deltaFontSizeProvider);
-    final iconSize = appIconBasisSize + fontSizeDelta;
-    bool isReloading = ref.watch(getUserProfileProvider).isReloading;
-    bool isLoading = ref.watch(getUserProfileProvider).isLoading;
-    bool isRefreshing = ref.watch(getUserProfileProvider).isRefreshing;
-    debugPrint("isReloading: $isReloading");
-    debugPrint("isLoading: $isLoading");
-    debugPrint("isRefreshing: $isRefreshing");
+  Widget build(BuildContext context) {
+    return OrientationBuilder(builder: (context, orientation) {
+      Widget profileWidget = Container();
 
-    if (ref.watch(getUserProfileProvider).isRefreshing) {
-      return BasisForm(formTitle: "Clubs".tr(),form: AppProcessIndicator(message: "Loading".tr()));
-    }
-    UserProfileResponse userProfile = ref.watch(getUserProfileProvider).value!;
-    userProfile.clubAndRoleDTOList.sort((a, b) => a.clubName.compareTo(b.clubName));
-    List<Widget> fields = <Widget>[];
+      profileWidget = ref.watch(getClubsRolesActionsProvider).when(
+          loading: () => AppProcessIndicator(message: "Loading".tr()),
+          skipLoadingOnRefresh: false,
+          error: (err, stack) =>
+              ApiErrorTileRetry(
+                err: err,
+                errorMessage: "BackEndComError".tr(),
+                errorStack: stack,
+                tapToRetryHint: appPlatform == EndDevice.web ? "ClickToRetry".tr() : "TapToRetry".tr(),
+                deltaSize: ref.watch(deltaFontSizeProvider),
+                retryCallBack: () => reloadClubsRolesActions(ref),
+              ),
+          data: (clubsRolesActions) => _toClubRolesActions(clubsRolesActions, ref)
+      );
 
-    fields.add(Padding(
-      padding: const EdgeInsets.all(10),
-      child: Text("ClubsManager".tr(),
-          textAlign: TextAlign.center, style: textStyleHeadlineSmall),
-    ));
-
-    fields.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: DataTable(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            columns: [
-              DataColumn(label: Text('Club'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold),)),
-              DataColumn(label: Text('Role'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('', style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
-            ],
-            rows: /*idget.*/userProfile.clubAndRoleDTOList.asMap().entries.map((entry) {
-              final index = entry.key;
-              final clubAndRoleDTO = entry.value;
-              return DataRow(
-                cells: [
-                  DataCell(Text(clubAndRoleDTO.clubName, style: textStyleTitleMedium)),
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: clubAndRoleDTO.roles.map((roleTuple) {
-                        return Text(roleTuple.item2.tr(), style: textStyleTitleMedium);
-                      }).toList(),
-                    ),
-                  ),
-                  DataCell(IconButton(icon: Icon(chevronExpand, size: iconSize), onPressed: null,)),
-                ],
-                color: index.isOdd? null : MaterialStateProperty.all<Color>(evenRowColor),
-              );
-            }).toList(),
-          ),
-        )
-    );
-
-    fields.add(const Divider(
-      indent: divIntent,
-      endIndent: divIntent,
-    ));
-
-    //Add Club
-    fields.add(Padding(
-      padding: const EdgeInsets.only(top: myTopPadding),
-      child: ListTile(
-        leading: Icon(addObjectIcon, size: iconSize),
-        title: Align(
-            alignment: Alignment.centerLeft,
-            child: FittedBox(fit: BoxFit.scaleDown, child: Text("AddClub".tr(), style: textStyleTitleLarge,))),
-        trailing: Icon(chevronExpand, size: iconSize),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddClub())),
-      ),
-    ));
-
-    fields.add(const Divider(
-      indent: divIntent,
-      endIndent: divIntent,
-    ));
-
-    //Join Club
-    fields.add(Padding(
-      padding: const EdgeInsets.only(top: myTopPadding),
-      child: ListTile(
-        leading: Icon(joinClubIcon, size: iconSize),
-        title: Align(
-            alignment: Alignment.centerLeft,
-            child: FittedBox(fit: BoxFit.scaleDown, child: Text("JoinClub".tr(), style: textStyleTitleLarge,))),
-        trailing: Icon(chevronExpand, size: iconSize),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinClub())),
-      ),
-    ));
-
-    Widget clubsManagerWidget = Column(
-      children: [
-        Card(
-          elevation: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(formPadding),
-            child: Column(children: fields), //Sign-in Form
-          ),
-        ),
-        const Padding(padding: EdgeInsets.only(top: formPadding)),
-      ],
-    );
-
-
-    return BasisForm(formTitle: "Clubs".tr(), form: clubsManagerWidget);
+      return BasisForm(formTitle: "Clubs".tr(), form: profileWidget);
+    });
   }
 
+  void reloadClubsRolesActions(WidgetRef ref) {
+    return ref.refresh(getClubsRolesActionsProvider);
+  }
+
+  ClubListAndActions _toClubRolesActions(GetClubsRolesActionsResponse clubListAndActions, WidgetRef ref) {
+    clubListAndActions.clubAndRoleDTOList.sort((a, b) => a.clubName.compareTo(b.clubName));
+    return ClubListAndActions(clubsRolesActionsResponse: clubListAndActions);
+  }
 
 }

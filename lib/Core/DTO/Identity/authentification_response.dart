@@ -10,19 +10,25 @@ class AuthentificationResponse extends ApiBaseResponse {
   final LogAs logAs;
   final String hash;
 
-  AuthentificationResponse({required super.success, required this.accessToken, required this.logAs, required this.hash, required super.errors});
+  AuthentificationResponse({
+    required super.resultCode,
+    required this.accessToken,
+    required this.logAs,
+    required this.hash,
+    required super.errors,
+  });
 
   factory AuthentificationResponse.fromJson(Map<String, dynamic> json) {
-
     return AuthentificationResponse(
-      success: json["Success"],
+      resultCode: getAppResultEnum(json["ResultCode"]),
       accessToken: json["AccessToken"],
       logAs: LogAs.values[json["LogAs"]],
-      hash: json["Hash"]??"",
-      errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
+      hash: json["Hash"] ?? "",
+      errors: List.of(json["Errors"] ?? []).map((e) => CallError.fromJson(e)).toList(),
     );
   }
 }
+
 
 //these providers are being used for
 // final startUpAuthentificationRequestProvider = StateProvider<AuthentificationRequest?>((ref) => null);

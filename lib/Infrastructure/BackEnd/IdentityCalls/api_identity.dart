@@ -7,6 +7,7 @@ import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_request.d
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_response.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/delete_user_account_request.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/delete_user_account_response.dart';
+import 'package:fs_front/Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/user_profile_response.dart';
 import 'package:fs_front/Core/DTO/Identity/authentification_requrest.dart';
 import 'package:fs_front/Core/DTO/Identity/authentification_response.dart';
@@ -44,7 +45,7 @@ class ApiIdentity implements IApiIdentity {
     } catch (e) {
       debugPrint("api call registration of a new user triggered an exception ${e.toString()}");
       return RegistrationResponse(
-          success: false,
+          resultCode: AppResultCode.conflict,
           userName: "",
           accessToken: "",
           userPasswordHash: "",
@@ -65,11 +66,11 @@ class ApiIdentity implements IApiIdentity {
       if (response.statusCode == BackEndCall.okCode) {
         return AuthentificationResponse.fromJson(json.decode(response.body));
       } else if (response.statusCode == BackEndCall.unauthorizedCode) {
-        return AuthentificationResponse(success: false, accessToken: "", logAs: LogAs.none, hash: "", errors: [BackEndCall.unauthorizationError]);
+        return AuthentificationResponse(resultCode: AppResultCode.conflict, accessToken: "", logAs: LogAs.none, hash: "", errors: [BackEndCall.unauthorizationError]);
       } else {
         debugPrint("api call login failed with status code ${response.statusCode}");
         String callErrors = json.decode(response.body)["errors"].toString();
-        return AuthentificationResponse(success: false, accessToken: "", logAs: LogAs.none, hash: "", errors: [CallError(code: ApiCall.apiCallError, description: callErrors)]);
+        return AuthentificationResponse(resultCode: AppResultCode.conflict, accessToken: "", logAs: LogAs.none, hash: "", errors: [CallError(code: ApiCall.apiCallError, description: callErrors)]);
       }
     } catch (e) {
       debugPrint("api call login triggered an exception ${e.toString()}");
@@ -91,7 +92,7 @@ class ApiIdentity implements IApiIdentity {
       return body;
     } catch (e) {
       debugPrint("api call request user password reset triggered an exception ${e.toString()}");
-      return ResetUserPasswordResponse(success: false, email: "", errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
+      return ResetUserPasswordResponse(resultCode: AppResultCode.conflict, email: "", errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
     }
   }
 
@@ -105,7 +106,7 @@ class ApiIdentity implements IApiIdentity {
       return body;
     } catch (e) {
       debugPrint("api call ${IApiIdentity.checkUserNameFreeHandler} triggered an exception ${e.toString()}");
-      return CheckUserNameFreeResponse(success: false, userNameIsFree: false, errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
+      return CheckUserNameFreeResponse(resultCode: AppResultCode.conflict, userNameIsFree: false, errors: [CallError(code: "CallTriggeredException", description: e.toString())]);
     }
   }
 
@@ -123,6 +124,24 @@ class ApiIdentity implements IApiIdentity {
       return body;
     } catch (e) {
       debugPrint("api call ${IApiIdentity.getUserProfileHandler} triggered an exception ${e.toString()}");
+      throw Exception("exception during body encoding ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions() async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.get, apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.getClubsRolesActionsHandler, isAuthorised: true);
+
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    }
+
+    try {
+      var body = GetClubsRolesActionsResponse.fromJson(callResponse.body);
+      return body;
+    } catch (e) {
+      debugPrint("api call ${IApiIdentity.getClubsRolesActionsHandler} triggered an exception ${e.toString()}");
       throw Exception("exception during body encoding ${e.toString()}");
     }
   }
