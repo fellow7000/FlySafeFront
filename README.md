@@ -1,6 +1,9 @@
 # fs_front
 
-A new Flutter project.
+FlySafe! Aviation Front End for Version 4.0
+
+Language: Flutter
+Build Plattforms: Android, iOS, Web
 
 ## Getting Started
 
