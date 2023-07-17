@@ -100,7 +100,9 @@ class ApiClub implements IApiClub {
         throw Exception("exception during body encoding ${e.toString()}");
       }
     } else {
-      return ClubDetailsResponse(resultCode: AppResultCode.conflict, errors: callResponse.callError!, club: null);
+      throw Exception("API call finished with code ${callResponse.statusCode}");
+      //2023-07-13
+      //return ClubDetailsResponse(resultCode: AppResultCode.conflict, errors: callResponse.callError!, club: null);
     }
   }
 

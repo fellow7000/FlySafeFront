@@ -129,9 +129,9 @@ class ApiIdentity implements IApiIdentity {
   }
 
   @override
-  Future<GetClubsRolesActionsResponse> getClubsRolesActions() async {
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions({required List<String> requestedActions}) async {
     CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
-        .callAPI(callTypeAPI: CallTypeAPI.get, apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.getClubsRolesActionsHandler, isAuthorised: true);
+        .callAPI(callTypeAPI: CallTypeAPI.post, body: requestedActions, apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.getClubsRolesActionsHandler, isAuthorised: true);
 
     if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
       throw Unauthorised();

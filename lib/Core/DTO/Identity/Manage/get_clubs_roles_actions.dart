@@ -29,5 +29,5 @@ class GetClubsRolesActionsResponse extends ApiBaseResponse {
 }
 
 final getClubsRolesActionsProvider = FutureProvider.autoDispose<GetClubsRolesActionsResponse>((ref) {
-  return ref.watch(backEndUser).getClubsRolesActions();
+  return ref.watch(backEndUser).getClubsRolesActions(requestedActions: requestedActions);
 });

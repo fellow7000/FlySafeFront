@@ -18,7 +18,7 @@ class ClubDetailsResponse extends ApiBaseResponse {
   factory ClubDetailsResponse.fromJson(Map<String, dynamic> json) {
     return ClubDetailsResponse(
       resultCode: getAppResultEnum(json["ResultCode"]),
-      club: json["ClubID"]??"",
+      club: ClubDTO.fromJson(json["Club"]),
       errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
     );
   }

@@ -65,9 +65,17 @@ class BackEndCall<T> {
           response = await http.get(uri, headers: headers).timeout(BackEndCall.callTimeOut);
           break;
         case CallTypeAPI.post:
-          dynamic payload = body;
-          debugPrint(jsonEncode(payload.toJson()));
-          response = await http.post(uri, headers: headers, body: jsonEncode(payload.toJson())).timeout(BackEndCall.callTimeOut);
+          dynamic payloadTemp = body;
+          dynamic payload;
+          if (payloadTemp is List<String>) {
+            payload = jsonEncode(body);
+            //debugPrint(jsonEncode(payload));
+          } else {
+            payload = jsonEncode(payloadTemp.toJson());
+            //debugPrint(jsonEncode(payload.toJson()));
+          }
+          debugPrint(payload);
+          response = await http.post(uri, headers: headers, body: payload).timeout(BackEndCall.callTimeOut);
           break;
         default:
           throw UnimplementedError("Wrong API Type call");

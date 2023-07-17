@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/club_details_response.dart';
@@ -32,6 +33,8 @@ class ClubDetails extends ConsumerWidget {
       return BasisForm(formTitle: "Clubs".tr(),form: AppProcessIndicator(message: "Loading".tr()));
     }
 
+    //clubDetailsRequestProvider is updated in the form Club_list_and_actions
+
     clubDetailsWidget = ref.watch(clubDetailProvider).when(
         loading: () => AppProcessIndicator(message: "Loading".tr()),
         data: (data) {
@@ -58,7 +61,7 @@ class ClubDetails extends ConsumerWidget {
           retryCallBack: () => reloadClubDetails(ref),
         ));
 
-    return BasisForm(formTitle: "Clubs".tr(), form: clubDetailsWidget);
+    return BasisForm(formTitle: "Club".tr(), form: clubDetailsWidget);
   }
 
   void reloadClubDetails(WidgetRef ref) {

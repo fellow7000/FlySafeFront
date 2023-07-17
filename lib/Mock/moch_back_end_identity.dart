@@ -49,7 +49,7 @@ class FakeBackEndIdentity implements IApiIdentity {
   }
 
   @override
-  Future<GetClubsRolesActionsResponse> getClubsRolesActions() {
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions({required List<String> requestedActions}) {
     // TODO: implement getClubsRolesActions
     throw UnimplementedError();
   }

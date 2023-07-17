@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
+import 'package:fs_front/Helpers/general_helper.dart';
 import 'package:fs_front/UI/Clubs/add_club.dart';
 import 'package:fs_front/UI/Clubs/club_list_and_actions.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 
+import '../../Core/DTO/Generic/allowed_actions_dto.dart';
 import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/enums.dart';
 import '../../Core/Vars/globals.dart';
@@ -33,6 +35,8 @@ class ClubManagerWidget extends ConsumerState<ClubManager> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
       Widget profileWidget = Container();
+
+      requestedActions = [GeneralHelper.capitalizeFirstCharacter(AppAction.createClub.name), GeneralHelper.capitalizeFirstCharacter(AppAction.joinClub.name)];
 
       profileWidget = ref.watch(getClubsRolesActionsProvider).when(
           loading: () => AppProcessIndicator(message: "Loading".tr()),

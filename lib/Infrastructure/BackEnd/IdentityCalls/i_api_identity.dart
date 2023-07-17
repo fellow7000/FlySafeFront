@@ -29,7 +29,7 @@ abstract class IApiIdentity extends ApiCall {
   static const String changeUserPasswordHandler = "changeuserpassword";
   static const String changeUserEmailHandler = "changeuseremail";
   static const String deleteUserAccountHandler = "deleteuserprofile";
-  static const String getClubsRolesActionsHandler = "getuserclubs";
+  static const String getClubsRolesActionsHandler = "getuserclubsactions";
 
   //User or Club Sign-in
   Future<RegistrationResponse> signUp({required RegistrationRequest registrationRequest});
@@ -43,7 +43,7 @@ abstract class IApiIdentity extends ApiCall {
 
   Future<UserProfileResponse> getUserProfile();
 
-  Future<GetClubsRolesActionsResponse> getClubsRolesActions();
+  Future<GetClubsRolesActionsResponse> getClubsRolesActions({required List<String> requestedActions});
 
   Future<ChangeUserPasswordResponse> changeUserPassword({required ChangeUserPasswordRequest changeUserPasswordRequest});
 

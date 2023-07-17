@@ -7,14 +7,19 @@ import 'package:fs_front/Helpers/identity_helper.dart';
 import 'package:fs_front/UI/Clubs/add_club.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 
+import '../../Core/DTO/Club/club_details_request.dart';
+import '../../Core/DTO/Club/club_details_response.dart';
 import '../../Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
+import '../../Helpers/general_helper.dart';
 import '../Elements/basis_form.dart';
 import '../Themes/app_themes.dart';
+import 'club_details.dart';
 import 'join_club.dart';
 
+///Form to display the list of clubs where the user is a member, manager, owner etc plus several actions (create a new club, join a club)
 class ClubListAndActions extends ConsumerWidget {
 
   static const double myTopPadding = 0;
@@ -69,7 +74,8 @@ class ClubListAndActions extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(roleTuple.item2.tr(), style: textStyleTitleMedium),
-                            IconButton(onPressed: null, icon: Icon(chevronExpand, size: iconSize))
+                            //IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubAndRoleDTO.clubID,))), icon: Icon(chevronExpand, size: iconSize))
+                            IconButton(onPressed: () => _showClubDetails(clubId: clubAndRoleDTO.clubID, ref: ref, context: context), icon: Icon(chevronExpand, size: iconSize))
                           ],
                         );
                       }).toList(),
@@ -146,5 +152,15 @@ class ClubListAndActions extends ConsumerWidget {
 
   }
 
+  void _showClubDetails({required String clubId, required WidgetRef ref, required BuildContext context}) {
+    ref.read(clubDetailsRequestProvider.notifier).state = ClubDetailsRequest(clubId: clubId, requestedActions: GeneralHelper.formActionList([
+      AppAction.editClubBaseInfo,
+      AppAction.editClubBaseInfo,
+      AppAction.deleteClub,
+      AppAction.changeClubPassword,
+      AppAction.getClubMembers
+    ])); //2023-07-17 no club hand-over in this version
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubId)));
+  }
 
 }
