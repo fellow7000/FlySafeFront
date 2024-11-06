@@ -11,14 +11,15 @@ late EndDevice appPlatform;
 bool isMobileDevice = false;
 const String prodHost = "fellow7000.com";
 const String devHost = "dev7000.com.preview.my-hosting-panel.com";
-const String locHost = "192.168.1.106:5200";
+const String locHost = "192.168.178.59:5200";
+//const String locHost = "localhost:5200";
 final List<Uri> webHosts = [Uri(scheme: "https", path: prodHost), Uri(scheme: "http", path: devHost), Uri(scheme: "http", path: locHost)];
 int hostClicks = 0;
 const int maxHostClicks = 5;
 const String assetFolder = 'assets/';
 const String imageFolder = '${assetFolder}images/';
 const String appIcon = '${imageFolder}fs_icon.png';
-const String copyRightLabel = "© 2017 - 2022 Fellow7000";
+const String copyRightLabel = "© 2017 - 2024 Fellow7000";
 const String f7email = "tower@fellow7000.com";
 final Uri tutorialUrl = Uri.parse('https://youtu.be/P0wUxeZgop0'); //video tutorial url V 3.2.0
 late String clickToRetry;
