@@ -20,10 +20,8 @@ import '../../Elements/textformfield_validate.dart';
 import '../../Themes/app_themes.dart';
 
 class ChangeUserEmail extends ConsumerWidget {
-  final _formKey = GlobalKey<FormState>();
   final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
 
-  final _signUpStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
 
   final UserProfileResponse userProfile;
 
@@ -144,7 +142,9 @@ class ChangeUserEmail extends ConsumerWidget {
     changeResult.then((data) {
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-        AppHelper.showSnack(context: context, message: "EmailChangeSuccess".tr());
+        if (context.mounted) {
+          AppHelper.showSnack(context: context, message: "EmailChangeSuccess".tr());
+        }
         ref.invalidate(getUserProfileProvider);
       } else {
         _callErrors = data.errors;

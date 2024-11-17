@@ -22,8 +22,7 @@ import '../Elements/textformfield_validate.dart';
 import '../Themes/app_themes.dart';
 
 class SignUp extends ConsumerStatefulWidget {
-  const SignUp({Key? key})
-      : super(key: key);
+  const SignUp({super.key});
 
   @override
   ConsumerState<SignUp> createState() => SignUpWidget();
@@ -427,9 +426,9 @@ class SignUpWidget extends ConsumerState<SignUp> {
             Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
               late final MaterialColor? iconColor;
 
-              if (ref.watch(_isClubPasswordConfirmationValidProvider) == null) {
-                iconColor = null;
-              } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
+              if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
+                iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
+              } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
                 iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
               } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
                 iconColor = Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark;
@@ -683,7 +682,9 @@ class SignUpWidget extends ConsumerState<SignUp> {
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_signUpStateProvider.notifier).state = AppFormState.resultOk;
         IdentityHelper.processSignInUpResponse(ref: ref, loginName: data.userName, hash: data.userPasswordHash, token: data.accessToken, logAs: data.logAs);
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } else {
         _callErrors = data.errors;
         ref.read(_signUpStateProvider.notifier).state = AppFormState.resultFailed;

@@ -70,7 +70,7 @@ class ApiErrorTileRetry extends ConsumerWidget {
         child: SizedBox(
           width: winWidth == WindowWidth.small?windowWidth - 50 : standardPanelWidth,
           child: ElevatedButton(
-            style: ButtonStyle(elevation: MaterialStateProperty.all(3), backgroundColor: MaterialStateProperty.all(Colors.white)),
+            style: ButtonStyle(elevation: WidgetStateProperty.all(3), backgroundColor: WidgetStateProperty.all(Colors.white)),
             onPressed: callBack!=null?() => callBack!():null,
             child: body,
           ),

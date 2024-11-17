@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/Vars/globals.dart';
 import 'package:fs_front/Core/Vars/providers.dart';
-import 'package:fs_front/Helpers/identity_helper.dart';
 import 'package:fs_front/UI/Identity/Manage/account_manager.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,10 +14,10 @@ class SignInTile extends ConsumerWidget {
   final String userOrClubName;
 
   const SignInTile({
-    Key? key,
+    super.key,
     required this.signInLabel,
     required this.userOrClubName,
-  }) : super(key: key);
+  });
 
 
   @override

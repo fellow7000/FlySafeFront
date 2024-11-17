@@ -4,17 +4,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fs_front/UI/Identity/login.dart';
 import 'package:fs_front/UI/Themes/app_themes.dart';
-import 'package:go_router/go_router.dart';
 
-import 'Core/Vars/enums.dart';
 import 'Core/Vars/globals.dart';
 import 'Core/Vars/providers.dart';
 import 'Core/Vars/routes.dart';
 import 'Helpers/app_helper.dart';
 import 'Helpers/http_overrider.dart';
-import 'UI/MainScreen/main_screen.dart';
 
 void main() async {
   if (kDebugMode) {

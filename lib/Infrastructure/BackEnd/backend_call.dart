@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Helpers/app_helper.dart';
-import '../../Helpers/identity_helper.dart';
 
 class BackEndCall<T> {
   final Uri webHostUri;

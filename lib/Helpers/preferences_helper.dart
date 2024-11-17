@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fs_front/Helpers/app_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Core/DTO/Identity/authentification_requrest.dart';
 import '../Core/DTO/Identity/authentification_response.dart';

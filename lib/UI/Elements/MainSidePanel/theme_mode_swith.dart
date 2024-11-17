@@ -5,11 +5,11 @@ import 'package:fs_front/Helpers/preferences_helper.dart';
 
 class ThemeModeSwitch extends ConsumerWidget {
   const ThemeModeSwitch({
-    Key? key,
+    super.key,
     required this.textStyle,
     required this.lightModeLabel,
     required this.darkModeLabel,
-    required this.systemModeLabel}) : super(key: key);
+    required this.systemModeLabel});
 
   final TextStyle textStyle;
   final String lightModeLabel;

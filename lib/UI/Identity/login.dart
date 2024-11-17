@@ -44,7 +44,7 @@ class LogIn extends ConsumerWidget {
   final String tapToRetryHint;
 
   const LogIn({
-    Key? key,
+    super.key,
     required this.loadingLabel,
     required this.selectClubHint,
     required this.formTitle,
@@ -70,7 +70,7 @@ class LogIn extends ConsumerWidget {
     required this.fieldIsRequiredLabel,
     required this.resetPasswordConfirmationLabel,
     required this.dataLoadErrorLabel,
-    required this.tapToRetryHint}):super(key: key);
+    required this.tapToRetryHint});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

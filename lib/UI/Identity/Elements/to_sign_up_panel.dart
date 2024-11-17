@@ -9,7 +9,7 @@ class ToSignUpOrIn extends ConsumerWidget {
   final String? itsFreeLabel;
   final Function toggleUpIn;
 
-  const ToSignUpOrIn({Key? key, required this.haveAccountLabel, required this.signUpInLabel, this.itsFreeLabel, required this.toggleUpIn}) : super(key: key);
+  const ToSignUpOrIn({super.key, required this.haveAccountLabel, required this.signUpInLabel, this.itsFreeLabel, required this.toggleUpIn});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

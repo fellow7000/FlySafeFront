@@ -72,7 +72,7 @@ class ToggleStartDialog extends ConsumerWidget {
   final BuildContext context;
   final String toggleLabel;
 
-  const ToggleStartDialog({Key? key, required this.context, required this.toggleLabel}) : super(key : key);
+  const ToggleStartDialog({super.key, required this.context, required this.toggleLabel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

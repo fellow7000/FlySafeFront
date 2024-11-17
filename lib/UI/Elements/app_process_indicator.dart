@@ -6,7 +6,7 @@ import '../../Core/Vars/providers.dart';
 class AppProcessIndicator extends ConsumerWidget {
   final String message;
 
-  const AppProcessIndicator({Key? key, required this.message}) : super(key: key);
+  const AppProcessIndicator({super.key, required this.message});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

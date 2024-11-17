@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_request.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_response.dart';
@@ -380,7 +379,9 @@ class ChangeUserPassword extends ConsumerWidget {
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
         IdentityHelper.processUserPasswordChange(ref: ref, newHash: data.newUserPasswordHash, newToken: data.newAccessToken);
-        AppHelper.showSnack(context: context, message: "PasswordChangeSuccess".tr());
+        if (context.mounted) {
+          AppHelper.showSnack(context: context, message: "PasswordChangeSuccess".tr());
+        }
         ref.read(_currentPasswordInputControllerProvider).text = "";
         ref.read(_newPasswordInputControllerProvider).text = "";
         ref.read(_isNewPasswordValidProvider.notifier).state = null;

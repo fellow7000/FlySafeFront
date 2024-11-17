@@ -9,7 +9,7 @@ ThemeData appLightTheme = ThemeData(
 ThemeData appDarkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.blueGrey)))
+    elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Colors.blueGrey)))
 );
 
 //Appbar Icons colors

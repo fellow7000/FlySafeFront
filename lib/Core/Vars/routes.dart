@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../Helpers/app_helper.dart';
 import '../../UI/Identity/login.dart';
 import '../../UI/MainScreen/main_screen.dart';
-import 'enums.dart';
 import 'globals.dart';
 
 final appRouter = GoRouter(

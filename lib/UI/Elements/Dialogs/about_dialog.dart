@@ -12,7 +12,7 @@ import '../../../Core/Vars/enums.dart';
 class AppDialogs{
 
   static void aboutDialog({required BuildContext context, required TextStyle textStyle}) async {
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) async {
+    final packageInfo = await PackageInfo.fromPlatform();
       String buildNumber = packageInfo.buildNumber;
       String bldType = "";
 
@@ -40,6 +40,7 @@ class AppDialogs{
         }
       }
 
+      if (!context.mounted) return;
       showAboutDialog(
           context: context,
           applicationIcon: Image.asset(appIcon),
@@ -83,8 +84,7 @@ class AppDialogs{
               },
             ),
           ]);
-    });
-  }
+    }
 
   static _showTutorial(Uri tutorialUrl) async {
     launchUrl(tutorialUrl).then((result) {

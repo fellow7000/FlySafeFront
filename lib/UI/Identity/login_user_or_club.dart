@@ -48,8 +48,7 @@ class LogInUserOrClub extends ConsumerStatefulWidget {
       required this.signUpLabel,
       required this.itsFreeLabel,
       required this.fieldIsRequiredLabel,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   ConsumerState<LogInUserOrClub> createState() => LogInUserOrClubWidget();
@@ -133,7 +132,11 @@ class LogInUserOrClubWidget extends ConsumerState<LogInUserOrClub> {
             onChanged: (value) => value.isEmpty ? ref.read(_isLoginPossibleProvider.notifier).state = false : ref.read(_isLoginPossibleProvider.notifier).state = true,
             //onSaved: (val) => InitValue.uName = val,
             onFieldSubmitted: (val) {
-              FocusScope.of(context).requestFocus(_focusUserOrClubPassword);
+              if (mounted) {
+                if (mounted) {
+                  FocusScope.of(context).requestFocus(_focusUserOrClubPassword);
+                }
+              }
             }),
       ));
     } else {
@@ -330,7 +333,9 @@ class LogInUserOrClubWidget extends ConsumerState<LogInUserOrClub> {
         _passwordInputController.clear();
         _callErrors = data.errors;
         ref.read(_isError.notifier).state = true;
-        FocusScope.of(context).requestFocus(_focusUserOrClubPassword);
+        if (mounted) {
+          FocusScope.of(context).requestFocus(_focusUserOrClubPassword);
+        }
       }
     }).onError((error, stackTrace) {
       _callErrors = [BackEndCall.callExceptionError];
