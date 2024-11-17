@@ -3,7 +3,6 @@ import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 
 import '../../../Core/DTO/Club/add_club_response.dart';
 import '../../../Core/DTO/Club/club_details_response.dart';
-import '../../../Core/DTO/Club/club_dto.dart';
 import '../../../Core/DTO/Club/join_club_request.dart';
 import '../../../Core/DTO/Club/join_club_response.dart';
 import '../api_call.dart';

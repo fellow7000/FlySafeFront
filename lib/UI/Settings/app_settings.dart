@@ -1,12 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:fs_front/Core/Vars/providers.dart';
 import 'package:fs_front/Helpers/preferences_helper.dart';
 import 'package:fs_front/UI/LocalDB/artefacts_manager.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../Core/Vars/globals.dart';
 import '../../Helpers/app_helper.dart';
@@ -19,11 +18,11 @@ class AppSettings extends ConsumerStatefulWidget {
   final String languageLabel;
 
   const AppSettings({
-    Key? key,
+    super.key,
     required this.appBarLabel,
     required this.generalSettingsLabel,
     required this.languageLabel,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<AppSettings> createState() => AppSettingsWidget();
@@ -211,7 +210,7 @@ class AppSettingsWidget extends ConsumerState<AppSettings> {
   void _toggleKeepDisplayOn(bool val) {
     ref.read(isKeepDisplayOnProvider.notifier).state = val;
     PreferencesHelper.setBoolPref(prefName: PreferencesHelper.isKeepDisplayOnPref, prefValue: val);
-    Wakelock.toggle(enable: val);
+    WakelockPlus.toggle(enable: val);
   }
 
   void _toggleConfirmationOnStart(bool val) {

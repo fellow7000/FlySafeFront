@@ -15,7 +15,7 @@ import '../Settings/app_settings.dart';
 import '../Themes/app_themes.dart';
 
 class SideMainMenu extends ConsumerWidget {
-  const SideMainMenu({Key? key}) : super(key: key);
+  const SideMainMenu({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

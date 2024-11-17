@@ -4,7 +4,6 @@ import '../../../Vars/enums.dart';
 import '../../../Vars/providers.dart';
 import '../../Base/api_base_response.dart';
 import '../../Base/call_error.dart';
-import '../../Club/club_and_role_dto.dart';
 
 class UserProfileResponse extends ApiBaseResponse {
   final String userName;

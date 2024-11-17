@@ -16,7 +16,7 @@ class DropdownPreference<T> extends ConsumerWidget {
   final double deltaFontSize;
 
   const DropdownPreference({
-    Key? key,
+    super.key,
     required this.title,
     this.description,
     required this.prefKey,
@@ -26,7 +26,7 @@ class DropdownPreference<T> extends ConsumerWidget {
     this.onChange,
     this.isDisabled = false,
     this.textStyle,
-    this.deltaFontSize = 0}) : super(key: key);
+    this.deltaFontSize = 0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

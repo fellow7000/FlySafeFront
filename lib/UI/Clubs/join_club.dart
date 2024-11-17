@@ -17,8 +17,7 @@ import '../Elements/basis_form.dart';
 import '../Themes/app_themes.dart';
 
 class JoinClub extends ConsumerStatefulWidget {
-  const JoinClub({Key? key})
-      : super(key: key);
+  const JoinClub({super.key});
 
   @override
   ConsumerState<JoinClub> createState() => JoinClubWidget();
@@ -245,9 +244,11 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
     joinClubResult.then((data) {
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-        AppHelper.showSnack(context: context, message: "WelcomeToClub".tr(args: [_clubNameInputController.text]));
-        ref.invalidate(getUserProfileProvider);
-        Navigator.pop(context);
+        if (mounted) {
+          AppHelper.showSnack(context: context, message: "WelcomeToClub".tr(args: [_clubNameInputController.text]));
+          ref.invalidate(getUserProfileProvider);
+          Navigator.pop(context);
+        }
       } else {
         _callErrors = data.errors;
         ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;

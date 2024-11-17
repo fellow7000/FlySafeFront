@@ -21,7 +21,8 @@ version: 4.0.0+1
 
 environment:
   #sdk: '>=2.18.6 <3.0.0'
-  sdk: '>=2.19.0 <3.0.0'
+  #sdk: '>=2.19.0 <3.0.0'
+  sdk: ^3.5.4
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -32,25 +33,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: ^2.1.2 #all platforms, no permission required
+  flutter_riverpod: ^2.6.1 #all platforms, no permission required
   rflutter_alert: ^2.0.4 #no perms. req.
   easy_localization: ^3.0.1 #all platforms, no permission required
-  shared_preferences: ^2.0.15 #all platforms, no permission required
-  url_launcher: ^6.1.7 #no perms. req.
-  date_format: ^2.0.7 #no perms. req.
-  package_info_plus: ^3.0.2 #no perms. req.
-  wakelock: ^0.6.2 #no permission required
-  http: ^0.13.5 #internet permission requires for Android, macOS, iOs
-  sqflite: ^2.2.4+1 #no perms. req.
-  path: ^1.8.2
-  go_router: ^6.2.0
-  web_socket_channel: ^2.1.0
+  shared_preferences: ^2.3.3 #all platforms, no permission required
+  url_launcher: ^6.3.1 #no perms. req.
+  date_format: ^2.0.9 #no perms. req.
+  package_info_plus: ^8.1.1 #no perms. req.
+  wakelock_plus: ^1.2.8 #no permission required
+  http: ^1.2.2 #internet permission requires for Android, macOS, iOs
+  sqflite: ^2.4.1 #no perms. req.
+  path: ^1.9.0
+  go_router: ^14.6.0
+  web_socket_channel: ^3.0.0
 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +62,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

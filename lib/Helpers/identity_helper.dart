@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Generic/allowed_actions_dto.dart';
@@ -8,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../Core/Vars/enums.dart';
 import '../Core/Vars/globals.dart';
 import '../Core/Vars/providers.dart';
-import '../UI/Identity/login.dart';
 
 class IdentityHelper {
   static void signUp() {}

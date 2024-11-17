@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Generic/check_value_request.dart';
 import 'package:fs_front/Core/DTO/Generic/check_value_response.dart';
-import 'package:fs_front/Infrastructure/BackEnd/ClubCalls/api_club.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -27,8 +25,7 @@ import '../Elements/switch_or_check_list_tile.dart';
 import '../Themes/app_themes.dart';
 
 class AddClub extends ConsumerStatefulWidget {
-  const AddClub({Key? key})
-      : super(key: key);
+  const AddClub({super.key});
 
   @override
   ConsumerState<AddClub> createState() => AddClubWidget();
@@ -262,9 +259,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
       Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
         late final MaterialColor? iconColor;
 
-        if (ref.watch(_isClubPasswordConfirmationValidProvider) == null) {
-          iconColor = null;
-        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
+        if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
+          iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
+        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
           iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
         } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
           iconColor = Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark;
@@ -540,9 +537,11 @@ class AddClubWidget extends ConsumerState<AddClub> {
     addClubResult.then((data) {
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-        AppHelper.showSnack(context: context, message: "ClubCreated".tr());
-        ref.invalidate(getUserProfileProvider);
-        Navigator.pop(context);
+        if (mounted) {
+          AppHelper.showSnack(context: context, message: "ClubCreated".tr());
+          ref.invalidate(getUserProfileProvider);
+          Navigator.pop(context);
+        }
       } else {
         _callErrors = data.errors;
         ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;

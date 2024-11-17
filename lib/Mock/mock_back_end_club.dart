@@ -2,16 +2,10 @@ import 'package:fs_front/Core/DTO/Club/add_club_request.dart';
 
 import 'package:fs_front/Core/DTO/Club/add_club_response.dart';
 import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
-import 'package:fs_front/Core/DTO/Club/club_dto.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_request.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_response.dart';
 
 import '../Core/DTO/Club/club_details_response.dart';
-import '../Core/DTO/Identity/authentification_requrest.dart';
-import '../Core/DTO/Identity/authentification_response.dart';
-import '../Core/DTO/Identity/reset_user_password_request.dart';
-import '../Core/DTO/Identity/reset_user_password_response.dart';
-import '../Core/Vars/enums.dart';
 import '../Infrastructure/BackEnd/ClubCalls/i_api_club.dart';
 
 class FakeBackEndClub implements IApiClub {

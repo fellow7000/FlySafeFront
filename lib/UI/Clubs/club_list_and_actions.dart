@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:fs_front/Helpers/identity_helper.dart';
@@ -83,7 +82,7 @@ class ClubListAndActions extends ConsumerWidget {
                   ),
                   //DataCell(IconButton(icon: Icon(chevronExpand, size: iconSize), onPressed: null,)),
                 ],
-                color: index.isOdd? null : MaterialStateProperty.all<Color>(evenRowColor),
+                color: index.isOdd? null : WidgetStateProperty.all<Color>(evenRowColor),
               );
             }).toList(),
           ),

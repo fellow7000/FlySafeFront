@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/club_details_response.dart';

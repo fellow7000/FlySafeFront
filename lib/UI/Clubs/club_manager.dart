@@ -1,26 +1,20 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import 'package:fs_front/Helpers/general_helper.dart';
-import 'package:fs_front/UI/Clubs/add_club.dart';
 import 'package:fs_front/UI/Clubs/club_list_and_actions.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 
 import '../../Core/DTO/Generic/allowed_actions_dto.dart';
-import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/enums.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
 import '../Elements/api_error_tile_retry.dart';
 import '../Elements/basis_form.dart';
-import '../Themes/app_themes.dart';
-import 'join_club.dart';
 
 class ClubManager extends ConsumerStatefulWidget {
-  const ClubManager({Key? key})
-      : super(key: key);
+  const ClubManager({super.key});
 
   @override
   ConsumerState<ClubManager> createState() => ClubManagerWidget();

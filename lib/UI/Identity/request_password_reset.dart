@@ -30,7 +30,7 @@ class RequestPasswordReset extends ConsumerStatefulWidget {
   final String resetPasswordConfirmationLabel;
 
   const RequestPasswordReset(
-      {Key? key,
+      {super.key,
       required this.forgotPasswordHeader,
       required this.forgotPasswordHint,
       required this.enterEmailLabel,
@@ -40,17 +40,18 @@ class RequestPasswordReset extends ConsumerStatefulWidget {
       required this.orLabel,
       required this.logInLabel,
       required this.fieldIsRequiredLabel,
-      required this.resetPasswordConfirmationLabel})
-      : super(key: key);
+      required this.resetPasswordConfirmationLabel});
 
   @override
-  ConsumerState<RequestPasswordReset> createState() => RequestPasswordResetWidget();
+  ConsumerState<RequestPasswordReset> createState() =>
+      RequestPasswordResetWidget();
 }
 
 class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
   final _formKey = GlobalKey<FormState>();
 
-  final _emailInputControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
+  final _emailInputControllerProvider =
+      Provider.autoDispose<TextEditingController>((ref) {
     final textController = TextEditingController();
     ref.onDispose(() {
       textController.dispose();
@@ -60,11 +61,14 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
 
   final FocusNode _focusEmail = FocusNode();
 
-  final _isResetPossibleProvider = StateProvider.autoDispose<bool>((ref) => false);
-  final _resetStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
+  final _isResetPossibleProvider =
+      StateProvider.autoDispose<bool>((ref) => false);
+  final _resetStateProvider =
+      StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
 
   final _isError = StateProvider<bool>((ref) => false);
-  List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
+  List<CallError> _callErrors =
+      []; //TODO: implementation of error handling is open!
 
   @override
   Widget build(BuildContext context) {
@@ -73,15 +77,28 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
 
     List<Widget> fields = <Widget>[];
 
-    if (resetPasswordState == AppFormState.dataInput || resetPasswordState == AppFormState.processing || resetPasswordState == AppFormState.resultFailed || resetPasswordState == AppFormState.httpError) {
+    if (resetPasswordState == AppFormState.dataInput ||
+        resetPasswordState == AppFormState.processing ||
+        resetPasswordState == AppFormState.resultFailed ||
+        resetPasswordState == AppFormState.httpError) {
       fields.add(Padding(
         padding: const EdgeInsets.all(10),
-        child: Text(widget.forgotPasswordHeader, textAlign: TextAlign.start, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1)),
+        child: Text(widget.forgotPasswordHeader,
+            textAlign: TextAlign.start,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.apply(fontWeightDelta: 1)),
       ));
 
       fields.add(Padding(
         padding: const EdgeInsets.all(10),
-        child: Text(widget.forgotPasswordHint, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium?.apply(fontWeightDelta: 0)),
+        child: Text(widget.forgotPasswordHint,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.apply(fontWeightDelta: 0)),
       ));
 
       //Email input field
@@ -90,9 +107,7 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
           controller: ref.watch(_emailInputControllerProvider),
           focusNode: _focusEmail,
           autofocus: kIsWeb ? true : false,
-          inputFormatters: [
-            FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
-          ],
+          inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
           style: Theme.of(context).textTheme.titleLarge,
           decoration: InputDecoration(
               hintText: widget.emailHint,
@@ -107,14 +122,19 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
                 icon: const Icon(Icons.cancel),
                 onPressed: () => _clearEmailField(ref),
               )),
-          validator: (val) => AppHelper.isEmailValid(val!) ? null : widget.fieldIsRequiredLabel,
-          onChanged: (value) =>
-              AppHelper.isEmailValid(value) ? ref.read(_isResetPossibleProvider.notifier).state = true : ref.read(_isResetPossibleProvider.notifier).state = false,
-          onFieldSubmitted: ((value) => ref.watch(_isResetPossibleProvider) ? _resetPassword() : null)));
+          validator: (val) =>
+              AppHelper.isEmailValid(val!) ? null : widget.fieldIsRequiredLabel,
+          onChanged: (value) => AppHelper.isEmailValid(value)
+              ? ref.read(_isResetPossibleProvider.notifier).state = true
+              : ref.read(_isResetPossibleProvider.notifier).state = false,
+          onFieldSubmitted: ((value) =>
+              ref.watch(_isResetPossibleProvider) ? _resetPassword() : null)));
 
       //Error Message
       if (ref.watch(_isError)) {
-        fields.add(ApiErrorMessages(callErrors: _callErrors, deltaFontSize: ref.watch(deltaFontSizeProvider)));
+        fields.add(ApiErrorMessages(
+            callErrors: _callErrors,
+            deltaFontSize: ref.watch(deltaFontSizeProvider)));
       }
 
       //Reset Button
@@ -126,15 +146,28 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    disabledBackgroundColor: Theme.of(context).brightness == Brightness.light ? primaryActionButtonOkDisabledColorLight : primaryActionButtonOkDisabledColorDark,
-                    backgroundColor: Theme.of(context).brightness == Brightness.light ? primaryActionButtonOkEnabledColorLight : null,
+                    disabledBackgroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? primaryActionButtonOkDisabledColorLight
+                            : primaryActionButtonOkDisabledColorDark,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? primaryActionButtonOkEnabledColorLight
+                            : null,
                   ),
-                  onPressed: ref.watch(_isResetPossibleProvider) ? _resetPassword : null,
+                  onPressed: ref.watch(_isResetPossibleProvider)
+                      ? _resetPassword
+                      : null,
                   child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text(widget.resetLabel, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(color: Colors.white)))),
+                          child: Text(widget.resetLabel,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.apply(color: Colors.white)))),
                 )),
       ));
 
@@ -143,7 +176,12 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
       //Email sent confirmation text
       fields.add(Padding(
         padding: const EdgeInsets.all(10),
-        child: Text(widget.resetPasswordConfirmationLabel, textAlign: TextAlign.start, style: Theme.of(context).textTheme.titleMedium?.apply(fontWeightDelta: 0)),
+        child: Text(widget.resetPasswordConfirmationLabel,
+            textAlign: TextAlign.start,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.apply(fontWeightDelta: 0)),
       ));
 
       fields.add(const Divider(
@@ -159,7 +197,12 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
         onTap: _toSignIn,
         child: HyperLink(
             link: widget.logInLabel,
-            style: Theme.of(context).textTheme.titleLarge?.apply(fontWeightDelta: -1, color: Colors.blue[Theme.of(context).brightness == Brightness.light ? 900 : 500])),
+            style: Theme.of(context).textTheme.titleLarge?.apply(
+                fontWeightDelta: -1,
+                color: Colors.blue[
+                    Theme.of(context).brightness == Brightness.light
+                        ? 900
+                        : 500])),
       ),
     ));
 
@@ -195,29 +238,39 @@ class RequestPasswordResetWidget extends ConsumerState<RequestPasswordReset> {
 
     ref.read(_resetStateProvider.notifier).state = AppFormState.processing;
 
-    ref.read(resetUserPasswordRequestProvider.notifier).state = ResetUserPasswordRequest(
-        locale: context.locale.toString().replaceAll("_", "-"),
-        email: ref.read(_emailInputControllerProvider).text,
-        endDevice: appPlatform);
+    ref.read(resetUserPasswordRequestProvider.notifier).state =
+        ResetUserPasswordRequest(
+            locale: context.locale.toString().replaceAll("_", "-"),
+            email: ref.read(_emailInputControllerProvider).text,
+            endDevice: appPlatform);
 
     var passwordResetResult = ref.watch(resetUserPasswordProvider.future);
 
     passwordResetResult.then((data) {
       if (data.resultCode == AppResultCode.ok) {
+        // Update the state for a successful result
         ref.read(_resetStateProvider.notifier).state = AppFormState.resultOk;
       } else {
-        _callErrors = data.errors;
-        ref.read(_isError.notifier).state = true;
-        ref.read(_resetStateProvider.notifier).state = AppFormState.resultFailed;
-        ref.read(_isResetPossibleProvider.notifier).state = true;
-        FocusScope.of(context).requestFocus(_focusEmail);
+        // Call a method to handle errors, including context-dependent actions
+        _handlePasswordResetFailure(data.errors);
       }
     }).onError((error, stackTrace) {
-      _callErrors = [BackEndCall.callExceptionError];
-      ref.read(_isError.notifier).state = true;
-      ref.read(_resetStateProvider.notifier).state = AppFormState.httpError;
-      ref.read(_isResetPossibleProvider.notifier).state = true;
+      // Handle exceptions and call the error handler
+      _handlePasswordResetFailure([BackEndCall.callExceptionError]);
     });
+  }
+
+// Define a method to handle password reset failure
+  void _handlePasswordResetFailure(List<CallError> errors) {
+    _callErrors = errors;
+    ref.read(_isError.notifier).state = true;
+    ref.read(_resetStateProvider.notifier).state = AppFormState.resultFailed;
+    ref.read(_isResetPossibleProvider.notifier).state = true;
+
+    // Perform context-dependent operations only if mounted
+    if (mounted) {
+      FocusScope.of(context).requestFocus(_focusEmail);
+    }
   }
 
   void _toSignIn() {

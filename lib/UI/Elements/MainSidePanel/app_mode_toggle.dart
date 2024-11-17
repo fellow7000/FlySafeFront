@@ -11,7 +11,7 @@ class AppModeToggle extends ConsumerWidget {
   final String onLineModeLabel;
   final String flightModeLabel;
 
-  const AppModeToggle({Key? key, required this.onLineModeLabel, required this.flightModeLabel}) : super(key: key);
+  const AppModeToggle({super.key, required this.onLineModeLabel, required this.flightModeLabel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

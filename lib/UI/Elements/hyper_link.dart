@@ -7,16 +7,16 @@ class HyperLink extends ConsumerWidget {
   final isMouseInProvider = StateProvider((ref) => false);
 
   HyperLink({
-    Key? key,
+    super.key,
     required this.link,
     required this.style
-  }) : super (key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
     return MouseRegion(
-      cursor: MaterialStateMouseCursor.clickable,
+      cursor: WidgetStateMouseCursor.clickable,
       onEnter: (pointerEvenValue) => ref.read(isMouseInProvider.notifier).state = true,
       onExit: (pointerEvenValue) => ref.read(isMouseInProvider.notifier).state = false,
       child: FittedBox(

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class AllowedActionsDTO {
   final List<String> allowedActions;
 

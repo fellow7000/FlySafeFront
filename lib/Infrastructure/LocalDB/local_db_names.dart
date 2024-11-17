@@ -1,4 +1,6 @@
 //SQLite SQFLite DataTypes
+// ignore_for_file: constant_identifier_names
+
 const String sqlTEXT = "TEXT";
 const String sqlVARCHAR = "TEXT";
 const String sqlINTEGER = "INTEGER";
