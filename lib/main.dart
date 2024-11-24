@@ -40,18 +40,13 @@ void main() async {
     UncontrolledProviderScope(
       container: container,
       child: EasyLocalization(
-          supportedLocales: [
-            localeEN,
-            localeDE,
-            localeRU
-          ],
+          supportedLocales: [localeEN, localeDE, localeRU],
           path: langPath,
           //startLocale: startLocale,
           fallbackLocale: localeEN,
           useOnlyLangCode: true,
           saveLocale: true,
-          child: const FlySafeApp(
-          )),
+          child: const FlySafeApp()),
     ),
   );
 }
@@ -59,56 +54,18 @@ void main() async {
 class FlySafeApp extends ConsumerWidget {
   const FlySafeApp({super.key});
 
-@override
-Widget build(BuildContext context, WidgetRef ref) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    AppHelper.initFonts(context, ref.watch(deltaFontSizeProvider));
 
-  AppHelper.initFonts(context, ref.watch(deltaFontSizeProvider));
-
-  return MaterialApp.router(
-    localizationsDelegates: context.localizationDelegates,
-    supportedLocales: context.supportedLocales,
-    locale: context.locale,
-    theme: appLightTheme,
-    darkTheme: appDarkTheme,
-    themeMode: ref.watch(themeModeProvider),
-    routerConfig: appRouter,
-    // home: GestureDetector(
-    //     onTap: () => AppHelper.dismissKeyboard(context),
-    //     child: const SafeArea(child: MainScreen())),
-  );
+    return MaterialApp.router(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      theme: appLightTheme,
+      darkTheme: appDarkTheme,
+      themeMode: ref.watch(themeModeProvider),
+      routerConfig: appRouter,
+    );
+  }
 }
-
-}
-
-// class FlySafeApp extends ConsumerStatefulWidget{
-//   const FlySafeApp({Key? key}) : super(key: key);
-//
-//   @override
-//   ConsumerState<FlySafeApp> createState() => FlySafeAppWgt();
-// }
-//
-// class FlySafeAppWgt extends ConsumerState<FlySafeApp> {
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-//
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//
-//
-//     return MaterialApp(
-//       localizationsDelegates: context.localizationDelegates,
-//       supportedLocales: context.supportedLocales,
-//       locale: context.locale,
-//       theme: appLightTheme,
-//       darkTheme: appDarkTheme,
-//       themeMode: ref.watch(themeModeProvider),
-//       home: GestureDetector(
-//           onTap: () => AppHelper.dismissKeyboard(context),
-//           child: const SafeArea(child: MainScreen())),
-//     );
-//   }
-// }
