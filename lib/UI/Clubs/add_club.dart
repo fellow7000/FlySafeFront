@@ -37,9 +37,12 @@ class AddClubWidget extends ConsumerState<AddClub> {
 
   late WebSocketChannel _channel;
 
-  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.connectingToHost); //first we need to connect to the websocket
+  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) =>
+      AppFormState
+          .connectingToHost); //first we need to connect to the websocket
 
-  final _clubNameInputControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
+  final _clubNameInputControllerProvider =
+      Provider.autoDispose<TextEditingController>((ref) {
     final textController = TextEditingController();
     ref.onDispose(() {
       textController.dispose();
@@ -47,7 +50,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
     return textController;
   });
 
-  final TextEditingController _clubCommentInputController = TextEditingController();
+  final TextEditingController _clubCommentInputController =
+      TextEditingController();
 
   final FocusNode _focusClubName = FocusNode();
   final FocusNode _focusClubComment = FocusNode();
@@ -57,15 +61,19 @@ class AddClubWidget extends ConsumerState<AddClub> {
   final FocusNode _focusNodeSignUp = FocusNode();
 
   final _isClubNameValidProvider = StateProvider<bool>((ref) => false);
-  final _clubNameValidationStateProvider = StateProvider<ValidationStatus>((ref) => ValidationStatus.init);
+  final _clubNameValidationStateProvider =
+      StateProvider<ValidationStatus>((ref) => ValidationStatus.init);
   final _clubNameValidatorMessage = StateProvider<String?>((ref) => null);
 
-  final TextEditingController _clubPasswordInputController = TextEditingController();
-  final TextEditingController _clubPasswordConfirmationInputController = TextEditingController();
+  final TextEditingController _clubPasswordInputController =
+      TextEditingController();
+  final TextEditingController _clubPasswordConfirmationInputController =
+      TextEditingController();
 
   final _isClubPasswordHiddenProvider = StateProvider<bool>((ref) => true);
 
-  final _isClubPasswordConfirmationValidProvider = StateProvider<bool>((ref) => true); //empty club passwords are valid by default
+  final _isClubPasswordConfirmationValidProvider = StateProvider<bool>(
+      (ref) => true); //empty club passwords are valid by default
 
   String? _clubPasswordConfirmationValidator;
 
@@ -75,7 +83,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
 
   bool _isWebSocketConnected = false;
 
-  List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
+  List<CallError> _callErrors =
+      []; //TODO: implementation of error handling is open!
 
   static const Widget _validateInProgress = Padding(
     padding: EdgeInsets.all(2),
@@ -105,41 +114,52 @@ class AddClubWidget extends ConsumerState<AddClub> {
     List<Widget> fields = <Widget>[];
     final isReadOnly = formState == AppFormState.processing;
     final validationStatus = ref.watch(_clubNameValidationStateProvider);
-    final isError = (formState == AppFormState.httpError || formState == AppFormState.exception || formState == AppFormState.resultFailed);
+    final isError = (formState == AppFormState.httpError ||
+        formState == AppFormState.exception ||
+        formState == AppFormState.resultFailed);
 
     fields.add(Padding(
       padding: const EdgeInsets.all(10),
       child: Text("AddClub".tr(),
-          textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)),
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .headlineSmall
+              ?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)),
     ));
-    
+
     if (ref.watch(_formStateProvider) == AppFormState.connectingToHost) {
       fields.add(Padding(
           padding: const EdgeInsets.only(top: formPadding, bottom: formPadding),
           child: AppProcessIndicator(message: "StandBy".tr())));
 
       return BasisForm(
-        formTitle: "Club".tr(),
-        form: Card(
-          elevation: _myElevation,
-          child: Padding(
-            padding: const EdgeInsets.all(formPadding),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-                children: fields), //Sign-in Form
-          ),
-        )
-      );
+          formTitle: "Club".tr(),
+          form: Card(
+            elevation: _myElevation,
+            child: Padding(
+              padding: const EdgeInsets.all(formPadding),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: fields), //Sign-in Form
+            ),
+          ));
     }
 
     late final MaterialColor? iconColor;
 
-    if (validationStatus == ValidationStatus.init || validationStatus == ValidationStatus.validating) {
+    if (validationStatus == ValidationStatus.init ||
+        validationStatus == ValidationStatus.validating) {
       iconColor = null;
-    } else if (validationStatus == ValidationStatus.failed || validationStatus == ValidationStatus.notValid) {
-      iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
+    } else if (validationStatus == ValidationStatus.failed ||
+        validationStatus == ValidationStatus.notValid) {
+      iconColor = Theme.of(context).brightness == Brightness.light
+          ? notValidColorLight
+          : notValidColorDark;
     } else if (validationStatus == ValidationStatus.ok) {
-      iconColor = Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark;
+      iconColor = Theme.of(context).brightness == Brightness.light
+          ? validColorLight
+          : validColorDark;
     }
 
     //Club Name
@@ -155,13 +175,14 @@ class AddClubWidget extends ConsumerState<AddClub> {
           decoration: InputDecoration(
               labelText: "ClubName".tr(),
               labelStyle: textStyleBodyLarge,
-              prefixIcon : validationStatus == ValidationStatus.validating
-                  ? const FittedBox(fit: BoxFit.scaleDown, child: _validateInProgress)
+              prefixIcon: validationStatus == ValidationStatus.validating
+                  ? const FittedBox(
+                      fit: BoxFit.scaleDown, child: _validateInProgress)
                   : Icon(
-                clubIcon,
-                size: iconSize,
-                color: iconColor,
-              ),
+                      clubIcon,
+                      size: iconSize,
+                      color: iconColor,
+                    ),
               suffixIcon: IconButton(
                 icon: Icon(
                   clearTextIcon,
@@ -171,87 +192,98 @@ class AddClubWidget extends ConsumerState<AddClub> {
               )),
           onChanged: (value) => _sendNameForValidation(value),
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (_) => ref.watch(_isClubNameValidProvider) ? null : ref.watch(_clubNameValidatorMessage),
-          onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubComment)
-        ),
+          validator: (_) => ref.watch(_isClubNameValidProvider)
+              ? null
+              : ref.watch(_clubNameValidatorMessage),
+          onFieldSubmitted: (val) =>
+              FocusScope.of(context).requestFocus(_focusClubComment)),
     );
 
     //Club Comment
     fields.add(
       TextFormField(
-        controller: _clubCommentInputController,
-        focusNode: _focusClubComment,
-        readOnly: isReadOnly,
-        style: textStyleTitleLarge,
-        decoration: InputDecoration(
-            labelText: "Comment".tr(),
-            labelStyle: textStyleBodyLarge,
-            hintText: "Optional".tr(),
-            hintStyle: textStyleBodyMedium,
-            prefixIcon : Icon(
-              commentIcon,
-              size: iconSize,
-              color: Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                clearTextIcon,
-                size: iconSize,
-              ),
-              onPressed: () => _clearClubCommentInputField(),
-            )),
-        onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubPassword)
-      ),
-    );
-
-    //Club Password
-    fields.add(
-      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
-        return TextFormField(
-          controller: _clubPasswordInputController,
-          focusNode: _focusClubPassword,
-          style: textStyleTitleLarge,
-          obscureText: ref.watch(_isClubPasswordHiddenProvider),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          inputFormatters: [
-            FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
-          ],
+          controller: _clubCommentInputController,
+          focusNode: _focusClubComment,
           readOnly: isReadOnly,
+          style: textStyleTitleLarge,
           decoration: InputDecoration(
-              labelText: "ClubPassword".tr(),
+              labelText: "Comment".tr(),
               labelStyle: textStyleBodyLarge,
               hintText: "Optional".tr(),
               hintStyle: textStyleBodyMedium,
               prefixIcon: Icon(
-                passwordIcon,
+                commentIcon,
                 size: iconSize,
-                color: Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? validColorLight
+                    : validColorDark,
               ),
-              suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.end, //shift all stuff to the right (end)
-                  mainAxisSize: MainAxisSize.min, //make row of the size of two icons
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(!ref.watch(_isClubPasswordHiddenProvider) ? visibleIcon : notVisibleIcon, size: iconSize),
-                      onPressed: _toggleClubPasswordVisibility,
-                    ),
-                    IconButton(
-                        icon: Icon(
-                          clearTextIcon,
-                          size: iconSize,
-                        ),
-                        onPressed: _clearClubPassword),
-                  ])),
-          onChanged: (_) => _validateClubPassword(),
-          onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusConfirmClubPassword),
-          validator: null,
-        );
-      }
-      )
+              suffixIcon: IconButton(
+                icon: Icon(
+                  clearTextIcon,
+                  size: iconSize,
+                ),
+                onPressed: () => _clearClubCommentInputField(),
+              )),
+          onFieldSubmitted: (val) =>
+              FocusScope.of(context).requestFocus(_focusClubPassword)),
     );
 
+    //Club Password
     fields.add(
-      const SizedBox(height: myTopPadding,),
+        Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+      return TextFormField(
+        controller: _clubPasswordInputController,
+        focusNode: _focusClubPassword,
+        style: textStyleTitleLarge,
+        obscureText: ref.watch(_isClubPasswordHiddenProvider),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
+        readOnly: isReadOnly,
+        decoration: InputDecoration(
+            labelText: "ClubPassword".tr(),
+            labelStyle: textStyleBodyLarge,
+            hintText: "Optional".tr(),
+            hintStyle: textStyleBodyMedium,
+            prefixIcon: Icon(
+              passwordIcon,
+              size: iconSize,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? validColorLight
+                  : validColorDark,
+            ),
+            suffixIcon: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.end, //shift all stuff to the right (end)
+                mainAxisSize:
+                    MainAxisSize.min, //make row of the size of two icons
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(
+                        !ref.watch(_isClubPasswordHiddenProvider)
+                            ? visibleIcon
+                            : notVisibleIcon,
+                        size: iconSize),
+                    onPressed: _toggleClubPasswordVisibility,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        clearTextIcon,
+                        size: iconSize,
+                      ),
+                      onPressed: _clearClubPassword),
+                ])),
+        onChanged: (_) => _validateClubPassword(),
+        onFieldSubmitted: (val) =>
+            FocusScope.of(context).requestFocus(_focusConfirmClubPassword),
+        validator: null,
+      );
+    }));
+
+    fields.add(
+      const SizedBox(
+        height: myTopPadding,
+      ),
     );
 
     //Club Password Confirmation
@@ -260,11 +292,19 @@ class AddClubWidget extends ConsumerState<AddClub> {
         late final MaterialColor? iconColor;
 
         if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
-          iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
-        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
-          iconColor = Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark;
-        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) == true) {
-          iconColor = Theme.of(context).brightness == Brightness.light ? validColorLight : validColorDark;
+          iconColor = Theme.of(context).brightness == Brightness.light
+              ? notValidColorLight
+              : notValidColorDark;
+        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) ==
+            true) {
+          iconColor = Theme.of(context).brightness == Brightness.light
+              ? notValidColorLight
+              : notValidColorDark;
+        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) ==
+            true) {
+          iconColor = Theme.of(context).brightness == Brightness.light
+              ? validColorLight
+              : validColorDark;
         }
 
         return TextFormField(
@@ -273,9 +313,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
           style: textStyleTitleLarge,
           obscureText: ref.watch(_isClubPasswordHiddenProvider),
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          inputFormatters: [
-            FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
-          ],
+          inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
           readOnly: isReadOnly,
           decoration: InputDecoration(
               labelText: "ConfirmClubPassword".tr(),
@@ -286,11 +324,17 @@ class AddClubWidget extends ConsumerState<AddClub> {
                 color: iconColor,
               ),
               suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.end, //shift all stuff to the right (end)
-                  mainAxisSize: MainAxisSize.min, //make row of the size of two icons
+                  mainAxisAlignment: MainAxisAlignment
+                      .end, //shift all stuff to the right (end)
+                  mainAxisSize:
+                      MainAxisSize.min, //make row of the size of two icons
                   children: <Widget>[
                     IconButton(
-                      icon: Icon(!ref.watch(_isClubPasswordHiddenProvider) ? visibleIcon : notVisibleIcon, size: iconSize),
+                      icon: Icon(
+                          !ref.watch(_isClubPasswordHiddenProvider)
+                              ? visibleIcon
+                              : notVisibleIcon,
+                          size: iconSize),
                       onPressed: _toggleClubPasswordVisibility,
                     ),
                     IconButton(
@@ -301,63 +345,76 @@ class AddClubWidget extends ConsumerState<AddClub> {
                         onPressed: _clearClubPasswordConfirmation),
                   ])),
           onChanged: (_) => _validateClubPassword(),
-          onFieldSubmitted: ref.watch(_isAddClubPossibleProvider)? (val) => _addClub():null,
+          onFieldSubmitted: ref.watch(_isAddClubPossibleProvider)
+              ? (val) => _addClub()
+              : null,
           validator: (_) => _clubPasswordConfirmationValidator,
         );
-      }
-      ),
+      }),
     );
 
     //Club visibility checkbox
-    fields.add(
-        Row(
-          children: [
-            SwitchOrCheckListTile(
-              isMobileDevice: isMobileDevice,
-              focusNode: _focusClubVisibility,
-              title: Text("MakeClubPublic".tr(), style: Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider))),
-              value: ref.watch(_isClubPublicProvider),
-              controlAffinity: ListTileControlAffinity.trailing,
-              onChanged: (val) => _toggleClubVisibility(val),)
-          ],
+    fields.add(Row(
+      children: [
+        SwitchOrCheckListTile(
+          isMobileDevice: isMobileDevice,
+          focusNode: _focusClubVisibility,
+          title: Text("MakeClubPublic".tr(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge!
+                  .apply(fontSizeDelta: ref.watch(deltaFontSizeProvider))),
+          value: ref.watch(_isClubPublicProvider),
+          controlAffinity: ListTileControlAffinity.trailing,
+          onChanged: (val) => _toggleClubVisibility(val),
         )
-    );
+      ],
+    ));
 
     //Error Message
     if (isError) {
-      fields.add(ApiErrorMessages(callErrors: _callErrors, deltaFontSize: ref.watch(deltaFontSizeProvider)));
+      fields.add(ApiErrorMessages(
+          callErrors: _callErrors,
+          deltaFontSize: ref.watch(deltaFontSizeProvider)));
     }
 
     //Sign-Up Button. Wrapping into consumer is need in order to avoid rebuilding of verification fields
-    fields.add(Consumer(
-        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-          //child:
-          return Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: formState == AppFormState.processing
-                ? const CircularProgressIndicator()
-                : SizedBox(
+    fields.add(
+        Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+      //child:
+      return Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: formState == AppFormState.processing
+            ? const CircularProgressIndicator()
+            : SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   focusNode: _focusNodeSignUp,
                   style: ElevatedButton.styleFrom(
-                    disabledBackgroundColor: Theme
-                        .of(context)
-                        .brightness == Brightness.light ? primaryActionButtonOkDisabledColorLight : primaryActionButtonOkDisabledColorDark,
-                    backgroundColor: Theme
-                        .of(context)
-                        .brightness == Brightness.light ? primaryActionButtonOkEnabledColorLight : null,
+                    disabledBackgroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? primaryActionButtonOkDisabledColorLight
+                            : primaryActionButtonOkDisabledColorDark,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? primaryActionButtonOkEnabledColorLight
+                            : null,
                   ),
-                  onPressed: ref.watch(_isAddClubPossibleProvider) ? _addClub : null,
+                  onPressed:
+                      ref.watch(_isAddClubPossibleProvider) ? _addClub : null,
                   child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text("Create".tr(), textAlign: TextAlign.center, style: textStyleHeadlineSmall.apply(fontSizeDelta: ref.watch(deltaFontSizeProvider), color: Colors.white)))),
+                          child: Text("Create".tr(),
+                              textAlign: TextAlign.center,
+                              style: textStyleHeadlineSmall.apply(
+                                  fontSizeDelta:
+                                      ref.watch(deltaFontSizeProvider),
+                                  color: Colors.white)))),
                 )),
-          );
-        }
-    ));
+      );
+    }));
 
     Widget addClubWidget = Column(
       children: [
@@ -372,13 +429,18 @@ class AddClubWidget extends ConsumerState<AddClub> {
       ],
     );
 
-
     return BasisForm(formTitle: "Clubs".tr(), form: addClubWidget);
   }
 
   void _connectToWebSocket() async {
-    final url = AppHelper.generateUri(host: ref.read(webHostProvider.notifier).state, apiController: IApiClub.webSocketController, apiHandler: IApiClub.checkValueSocket);
-    final Uri uri = Uri.parse(url.toString().replaceFirst("http://", "ws://").replaceFirst("https://", "wss://"));
+    final url = AppHelper.generateUri(
+        host: ref.read(webHostProvider.notifier).state,
+        apiController: IApiClub.webSocketController,
+        apiHandler: IApiClub.checkValueSocket);
+    final Uri uri = Uri.parse(url
+        .toString()
+        .replaceFirst("http://", "ws://")
+        .replaceFirst("https://", "wss://"));
 
     _channel = WebSocketChannel.connect(uri);
 
@@ -407,7 +469,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
       ref.read(_clubNameValidatorMessage.notifier).state = null;
     }
 
-    ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.validating;
+    ref.read(_clubNameValidationStateProvider.notifier).state =
+        ValidationStatus.validating;
 
     String timeStamp = DateTime.now().toUtc().toString();
 
@@ -438,28 +501,42 @@ class AddClubWidget extends ConsumerState<AddClub> {
     }
 
     try {
-      final checkResult = CheckValueResponse.fromJson(jsonDecode(message));
+      // 25.11.2024 refactoring to drop CheckValueResponse in favor of CheckValue API, which returns bool
+      // final checkResult = CheckValueResponse.fromJson(jsonDecode(message));
 
-      if (checkResult.resultCode == AppResultCode.ok && checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      // if (checkResult.resultCode == AppResultCode.ok && checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      //   ref.read(_clubNameValidatorMessage.notifier).state = null;
+      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.ok;
+      //   ref.read(_isClubNameValidProvider.notifier).state = true;
+      // } else if (checkResult.resultCode == AppResultCode.ok && !checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      //   ref.read(_clubNameValidatorMessage.notifier).state = "ClubNameAlreadyTaken".tr();
+      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
+      //   ref.read(_isClubNameValidProvider.notifier).state = false;
+      // } else if (checkResult.resultCode != AppResultCode.ok || checkResult.timeStamp == ""){
+      //   ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
+      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
+      //   ref.read(_isClubNameValidProvider.notifier).state = false;
+      // } else {
+      //   debugPrint("Request Timestamp=${checkResult.timeStamp}, Provider Timestamp = ${ref.read(clubNameValidationStampProvider.notifier).state}");
+      // }
+
+      final isValueValid = jsonDecode(message) as bool;
+
+      if (isValueValid) {
         ref.read(_clubNameValidatorMessage.notifier).state = null;
         ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.ok;
         ref.read(_isClubNameValidProvider.notifier).state = true;
-      } else if (checkResult.resultCode == AppResultCode.ok && !checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
+      } else {
         ref.read(_clubNameValidatorMessage.notifier).state = "ClubNameAlreadyTaken".tr();
         ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
         ref.read(_isClubNameValidProvider.notifier).state = false;
-      } else if (checkResult.resultCode != AppResultCode.ok || checkResult.timeStamp == ""){
-        ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
-        ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
-        ref.read(_isClubNameValidProvider.notifier).state = false;
-      } else {
-        debugPrint("Request Timestamp=${checkResult.timeStamp}, Provider Timestamp = ${ref.read(clubNameValidationStampProvider.notifier).state}");
       }
 
       ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
     } catch (e) {
       ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;
     }
+    
     _checkAddClubPossible();
   }
 
@@ -477,18 +554,21 @@ class AddClubWidget extends ConsumerState<AddClub> {
 
   void _processEmptyClubName() {
     ref.read(_isClubNameValidProvider.notifier).state = false;
-    ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
+    ref.read(_clubNameValidationStateProvider.notifier).state =
+        ValidationStatus.notValid;
     ref.read(_clubNameValidatorMessage.notifier).state = "FieldIsRequired".tr();
     _checkAddClubPossible();
     //if (groupValidation != null) groupValidation!();
   }
 
   void _toggleClubPasswordVisibility() {
-    ref.read(_isClubPasswordHiddenProvider.notifier).state = !ref.read(_isClubPasswordHiddenProvider.notifier).state;
+    ref.read(_isClubPasswordHiddenProvider.notifier).state =
+        !ref.read(_isClubPasswordHiddenProvider.notifier).state;
   }
 
   void _validateClubPassword() {
-    if (_clubPasswordInputController.text == _clubPasswordConfirmationInputController.text) {
+    if (_clubPasswordInputController.text ==
+        _clubPasswordConfirmationInputController.text) {
       _clubPasswordConfirmationValidator = null;
       ref.read(_isClubPasswordConfirmationValidProvider.notifier).state = true;
     } else {
@@ -511,11 +591,14 @@ class AddClubWidget extends ConsumerState<AddClub> {
   }
 
   void _toggleClubVisibility(bool val) {
-    ref.read(_isClubPublicProvider.notifier).state = !ref.read(_isClubPublicProvider.notifier).state;
+    ref.read(_isClubPublicProvider.notifier).state =
+        !ref.read(_isClubPublicProvider.notifier).state;
   }
 
   _checkAddClubPossible() {
-    ref.read(_isAddClubPossibleProvider.notifier).state = ref.read(_isClubPasswordConfirmationValidProvider.notifier).state & ref.read(_isClubNameValidProvider.notifier).state;
+    ref.read(_isAddClubPossibleProvider.notifier).state =
+        ref.read(_isClubPasswordConfirmationValidProvider.notifier).state &
+            ref.read(_isClubNameValidProvider.notifier).state;
   }
 
   _addClub() {
@@ -529,7 +612,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
         clubName: ref.watch(_clubNameInputControllerProvider).text,
         clubPassword: _clubPasswordInputController.text,
         clubComment: _clubCommentInputController.text,
-        clubType: ref.read(_isClubPublicProvider.notifier).state?ClubType.publicClub:ClubType.nonListedClub,
+        clubType: ref.read(_isClubPublicProvider.notifier).state
+            ? ClubType.publicClub
+            : ClubType.nonListedClub,
         endDevice: appPlatform);
 
     var addClubResult = ref.watch(addClubProvider.future);

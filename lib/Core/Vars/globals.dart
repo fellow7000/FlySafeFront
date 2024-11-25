@@ -12,9 +12,10 @@ bool isMobileDevice = false;
 const String prodHost = "fellow7000.com";
 const String devHost = "dev7000.com.preview.my-hosting-panel.com";
 const String locHost = "localhost:5200";
-const String locLocHostIP = "192.168.178.59:5200";
+//25.11.2024 switching to localhost
+//const String locLocHostIP = "192.168.178.59:5200";
 //const String locHost = "localhost:5200";
-final List<Uri> webHosts = [Uri(scheme: "https", path: prodHost), Uri(scheme: "http", path: devHost), Uri(scheme: "http", path: locHost), Uri(scheme: "http", path: locLocHostIP)];
+final List<Uri> webHosts = [Uri(scheme: "https", path: prodHost), Uri(scheme: "http", path: devHost), Uri(scheme: "http", path: locHost)/*, Uri(scheme: "http", path: locLocHostIP)*/];
 int hostClicks = 0;
 const int maxHostClicks = 5;
 const String assetFolder = 'assets/';
