@@ -153,12 +153,13 @@ class ClubListAndActions extends ConsumerWidget {
 
   void _showClubDetails({required String clubId, required WidgetRef ref, required BuildContext context}) {
     ref.read(clubDetailsRequestProvider.notifier).state = ClubDetailsRequest(clubId: clubId, requestedActions: GeneralHelper.formActionList([
-      AppAction.editClubBaseInfo,
+      AppAction.readClubBaseInfo,
       AppAction.editClubBaseInfo,
       AppAction.deleteClub,
       AppAction.changeClubPassword,
-      AppAction.getClubMembers
-    ])); //2023-07-17 no club hand-over in this version
+      AppAction.getClubMembers,
+      AppAction.handoverClub //2023-07-17 no club hand-over in this version, so this is just a placeholder.
+    ])); 
     Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubId)));
   }
 

@@ -30,6 +30,7 @@ class ClubManagerWidget extends ConsumerState<ClubManager> {
     return OrientationBuilder(builder: (context, orientation) {
       Widget profileWidget = Container();
 
+      //this is a global variable.
       requestedActions = [GeneralHelper.capitalizeFirstCharacter(AppAction.createClub.name), GeneralHelper.capitalizeFirstCharacter(AppAction.joinClub.name)];
 
       profileWidget = ref.watch(getClubsRolesActionsProvider).when(

@@ -113,7 +113,7 @@ AppResultCode getAppResultEnum(int code) {
 ///AppResultCode Section End
 
 ///AppActions Section Start
-///The enum shall be equal to the enum in FlySafeWeb AppAction in Enums.cs (beside of the register of the first latter
+///The enum MUST be equal to the enum in FlySafeWeb AppAction in Enums.cs (beside of the register of the first latter to keep naming convention)
 enum AppAction
 {
   createClub,
