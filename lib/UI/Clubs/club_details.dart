@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fs_front/Core/Vars/enums.dart';
+import 'package:fs_front/Helpers/identity_helper.dart';
 
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/club_details_response.dart';
@@ -28,7 +30,7 @@ class ClubDetails extends ConsumerWidget {
     Widget clubDetailsWidget;
 
     if (ref.watch(getUserProfileProvider).isRefreshing) {
-      return BasisForm(formTitle: "Clubs".tr(),form: AppProcessIndicator(message: "Loading".tr()));
+      return BasisForm(formTitle: "Clubs".tr(), form: AppProcessIndicator(message: "Loading".tr()));
     }
 
     //clubDetailsRequestProvider is updated in the form Club_list_and_actions
@@ -37,6 +39,17 @@ class ClubDetails extends ConsumerWidget {
         loading: () => AppProcessIndicator(message: "Loading".tr()),
         data: (data) {
           fields.add(Text(data.club!.clubName));
+
+          //Delete Club Button
+          if (IdentityHelper.isActionAllowed(appAction: AppAction.deleteClub, allowedActions: data.allowedActions)) {
+            fields.add(
+              ElevatedButton(
+                onPressed: _deleteClub,
+                child: Text("DeleteClub".tr()),
+              ),
+            );
+          }
+
           return Column(
             children: [
               Card(
@@ -51,13 +64,13 @@ class ClubDetails extends ConsumerWidget {
           );
         },
         error: (err, stack) => ApiErrorTileRetry(
-          err: err,
-          errorMessage: "BackEndComError".tr(),
-          errorStack: stack,
-          tapToRetryHint: clickToRetry.tr(),
-          deltaSize: ref.watch(deltaFontSizeProvider),
-          retryCallBack: () => reloadClubDetails(ref),
-        ));
+              err: err,
+              errorMessage: "BackEndComError".tr(),
+              errorStack: stack,
+              tapToRetryHint: clickToRetry.tr(),
+              deltaSize: ref.watch(deltaFontSizeProvider),
+              retryCallBack: () => reloadClubDetails(ref),
+            ));
 
     return BasisForm(formTitle: "Club".tr(), form: clubDetailsWidget);
   }
@@ -66,4 +79,8 @@ class ClubDetails extends ConsumerWidget {
     return ref.refresh(clubDetailProvider);
   }
 
+  void _deleteClub() {
+    //01.12.2024 Not yet implemented
+    throw UnimplementedError();
+  }
 }

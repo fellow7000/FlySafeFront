@@ -36,6 +36,7 @@
   "ClubManagement" : "Club Management",
   "ClubJoiningGeneralError" : "Wrong password or club name",
   "UserAlreadyMember" : "You are already a member of this club",
+  "DeleteClub" : "Delete Club",
   "Cloud" : "Cloud",
   "VFR" : "VFR",
   "IFR" : "IFR",
