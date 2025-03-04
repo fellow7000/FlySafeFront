@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fs_front/Core/DTO/Generic/check_value_request.dart';
-import 'package:fs_front/Core/DTO/Generic/check_value_response.dart';
 import 'package:fs_front/UI/Elements/app_process_indicator.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 

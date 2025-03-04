@@ -19,7 +19,7 @@ class ClubDetails extends ConsumerWidget {
   final String clubId;
   final double _myElevation = 3;
 
-  List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
+  final List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,14 +40,30 @@ class ClubDetails extends ConsumerWidget {
         data: (data) {
           fields.add(Text(data.club!.clubName));
 
-          //Delete Club Button
-          if (IdentityHelper.isActionAllowed(appAction: AppAction.deleteClub, allowedActions: data.allowedActions)) {
-            fields.add(
-              ElevatedButton(
-                onPressed: _deleteClub,
-                child: Text("DeleteClub".tr()),
-              ),
-            );
+          //if the suer may not get the club details, show a message and stop
+          if (IdentityHelper.isActionAllowed(appAction: AppAction.readClubBaseInfo, allowedActions: data.allowedActions)) {
+            fields.add(Text("NoAccessToClub".tr()));
+          } else {
+
+            //Go to the Club Member Management
+            if (IdentityHelper.isActionAllowed(appAction: AppAction.getClubMembers, allowedActions: data.allowedActions)) {
+              fields.add(
+                ElevatedButton(
+                  onPressed: _manageClubMembers,
+                  child: Text("Members".tr()),
+                ),
+              );
+            }
+
+            //Delete Club Button
+            if (IdentityHelper.isActionAllowed(appAction: AppAction.deleteClub, allowedActions: data.allowedActions)) {
+              fields.add(
+                ElevatedButton(
+                  onPressed: _deleteClub,
+                  child: Text("DeleteClub".tr()),
+                ),
+              );
+            }
           }
 
           return Column(
@@ -80,7 +96,12 @@ class ClubDetails extends ConsumerWidget {
   }
 
   void _deleteClub() {
-    //01.12.2024 Not yet implemented
+    //2024-12-01 Not yet implemented
+    throw UnimplementedError();
+  }
+
+  void _manageClubMembers() {
+    //2025-03-04 Not yet implemented
     throw UnimplementedError();
   }
 }

@@ -158,7 +158,8 @@ class ClubListAndActions extends ConsumerWidget {
       AppAction.deleteClub,
       AppAction.changeClubPassword,
       AppAction.getClubMembers,
-      AppAction.handoverClub //2023-07-17 no club hand-over in this version, so this is just a placeholder.
+      AppAction.leaveClub, //2024-03-04 no club leave in the version 4.0, so this is just a placeholder.
+      AppAction.handoverClub //2023-07-17 no club hand-over in the version 4.0, so this is just a placeholder.
     ])); 
     Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubId)));
   }

@@ -36,6 +36,7 @@
   "ClubManagement" : "Club Verwaltung",
   "ClubJoiningGeneralError" : "Club oder Passwort stimmen nicht überein",
   "UserAlreadyMember" : "Du bist schon ein Mitglied in diesem Club",
+  "NoAccessToClub" : "Kein Zugriff auf den Club",
   "DeleteClub" : "Club löschen",
   "Cloud" : "Wolke",
   "VFR" : "VFR",

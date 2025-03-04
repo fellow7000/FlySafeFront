@@ -36,6 +36,7 @@
   "ClubManagement" : "Управление клубами",
   "ClubJoiningGeneralError" : "Неправильное имя клуба или пароль",
   "UserAlreadyMember" : "Вы уже состоите в этом клубе",
+  "NoAccessToClub" : "У вас нет доступа к этому клубу",
   "DeleteClub" : "Удалить клуб",
   "Cloud" : "Облако",
   "VFR" : "ПВП",

@@ -75,7 +75,7 @@ class UserOrClubProfile extends ConsumerWidget {
           textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)), //TODO: replace with code label
     ));
 
-    //Username
+    //Username or Club Name
     fields.add(Padding(
       padding: const EdgeInsets.only(top: myTopPadding),
       child: ListTile(
@@ -91,18 +91,34 @@ class UserOrClubProfile extends ConsumerWidget {
     ));
 
     if (logAs == LogAs.user) {
-    //Email
-    if (logAs == LogAs.user) {
+      //Email
+      if (logAs == LogAs.user) {
+        fields.add(Padding(
+          padding: const EdgeInsets.only(top: myTopPadding),
+          child: ListTile(
+            leading: Icon(emailIcon, size: iconSize, color: Theme
+                .of(context)
+                .brightness == Brightness.light ? validColorLight : validColorDark),
+            trailing: logAs == LogAs.user?Icon(chevronExpand, size: iconSize):null,
+            title: Text("Email".tr(), style: textStyleTitleMedium,),
+            subtitle: Text(userProfile.email, style: textStyleTitleLarge),
+            onTap: logAs == LogAs.user?() => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeUserEmail(userProfile: userProfile))):null,
+          ),
+        ));
+
+        fields.add(const Divider(
+          indent: divIntent,
+          endIndent: divIntent,
+        ));
+      }
+
+      //Date of registration
       fields.add(Padding(
         padding: const EdgeInsets.only(top: myTopPadding),
         child: ListTile(
-          leading: Icon(emailIcon, size: iconSize, color: Theme
-              .of(context)
-              .brightness == Brightness.light ? validColorLight : validColorDark),
-          trailing: logAs == LogAs.user?Icon(chevronExpand, size: iconSize):null,
-          title: Text("Email".tr(), style: textStyleTitleMedium,),
-          subtitle: Text(userProfile.email, style: textStyleTitleLarge),
-          onTap: logAs == LogAs.user?() => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeUserEmail(userProfile: userProfile))):null,
+          leading: Icon(calenderIcon, size: iconSize),
+          title: Text("RegistrationDate".tr(), style: textStyleTitleMedium,),
+          subtitle: Text("$registrationDateUTC, $registrationTimeUTC", style: textStyleTitleLarge),
         ),
       ));
 
@@ -110,57 +126,41 @@ class UserOrClubProfile extends ConsumerWidget {
         indent: divIntent,
         endIndent: divIntent,
       ));
-    }
 
-    //Date of registration
-    fields.add(Padding(
-      padding: const EdgeInsets.only(top: myTopPadding),
-      child: ListTile(
-        leading: Icon(calenderIcon, size: iconSize),
-        title: Text("RegistrationDate".tr(), style: textStyleTitleMedium,),
-        subtitle: Text("$registrationDateUTC, $registrationTimeUTC", style: textStyleTitleLarge),
-      ),
-    ));
+      //Club Management
+      fields.add(Padding(
+        padding: const EdgeInsets.only(top: myTopPadding),
+        child: ListTile(
+          leading: Icon(clubIcon, size: iconSize),
+          title: Align(
+              alignment: Alignment.centerLeft,
+              child: FittedBox(fit: BoxFit.scaleDown, child: Text("ClubManagement".tr(), style: textStyleTitleLarge,))),
+          trailing: Icon(chevronExpand, size: iconSize),
+          onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => const ClubManager())),
+        ),
+      ));
 
-    fields.add(const Divider(
-      indent: divIntent,
-      endIndent: divIntent,
-    ));
+      fields.add(const Divider(
+        indent: divIntent,
+        endIndent: divIntent,
+      ));
 
-    //Club Management
-    fields.add(Padding(
-      padding: const EdgeInsets.only(top: myTopPadding),
-      child: ListTile(
-        leading: Icon(clubIcon, size: iconSize),
-        title: Align(
-            alignment: Alignment.centerLeft,
-            child: FittedBox(fit: BoxFit.scaleDown, child: Text("ClubManagement".tr(), style: textStyleTitleLarge,))),
-        trailing: Icon(chevronExpand, size: iconSize),
-        onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => const ClubManager())),
-      ),
-    ));
+      //Password & Security management
+      fields.add(
+        ListTile(
+          leading: Icon(passwordIcon, size: iconSize),
+          title: Text("Password".tr(), style: textStyleTitleLarge,),
+          trailing: Icon(chevronExpand, size: iconSize),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeUserPassword())),
+        )
+      );
 
-    fields.add(const Divider(
-      indent: divIntent,
-      endIndent: divIntent,
-    ));
+      fields.add(const Divider(
+        indent: divIntent,
+        endIndent: divIntent,
+      ));
 
-    //Password & Security management
-    fields.add(
-      ListTile(
-        leading: Icon(passwordIcon, size: iconSize),
-        title: Text("Password".tr(), style: textStyleTitleLarge,),
-        trailing: Icon(chevronExpand, size: iconSize),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeUserPassword())),
-      )
-    );
-
-    fields.add(const Divider(
-      indent: divIntent,
-      endIndent: divIntent,
-    ));
-
-    //Delete Account
+      //Delete Account
       fields.add(Padding(
         padding: const EdgeInsets.only(top: myTopPadding),
         child: ListTile(

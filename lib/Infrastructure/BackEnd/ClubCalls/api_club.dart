@@ -84,6 +84,7 @@ class ApiClub implements IApiClub {
     }
   }
 
+  //get the details of a club
   @override
   Future<ClubDetailsResponse> getClubDetails({required ClubDetailsRequest clubDetailsRequest}) async {
     CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
