@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 
 import '../../Vars/providers.dart';

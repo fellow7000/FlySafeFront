@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 
 import '../../Core/DTO/Generic/check_value_request.dart';
@@ -89,7 +90,7 @@ class TextFormFieldOnlineValidate extends ConsumerWidget {
   // EditableTextContextMenuBuilder? contextMenuBuilder,
   //
 
-  late final AutoDisposeFutureProvider<CheckValueResponse> checkValueProvider;
+  late final FutureProvider<CheckValueResponse> checkValueProvider;
 
   final _fieldValidatorMessage = StateProvider<String?>((ref) => null);
   //final _validationStatusProvider = StateProvider<ValidationStatus>((ref) => ValidationStatus.init);

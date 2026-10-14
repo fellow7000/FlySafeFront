@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_request.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/change_user_password_response.dart';
 import 'package:fs_front/Helpers/app_helper.dart';

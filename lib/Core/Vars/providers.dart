@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/user_profile_response.dart';
 import 'package:fs_front/Core/Entities/Aux/app_locale.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
@@ -28,8 +29,9 @@ final isConfirmationOnExitProvider = StateProvider((ref) => true); //for Android
 final dateTimeOrderProvider = StateProvider((ref) => DateTimeOrder.timeDate);
 final dateFormatProvider = StateProvider((ref) => dateISO);
 
-final dateTimeTickerProvider = StreamProvider((ref) {
-  return Stream.periodic(const Duration(seconds: 1));
+final dateTimeTickerProvider = StreamProvider<int>((ref) {
+  // Riverpod 3 filters equal stream events; emitting null would stop the clock.
+  return Stream.periodic(const Duration(seconds: 1), (tick) => tick);
 });
 
 final dateTimeLocProvider = StateProvider((ref)

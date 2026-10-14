@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Identity/Manage/delete_user_account_request.dart';
 
 import '../../../Vars/enums.dart';

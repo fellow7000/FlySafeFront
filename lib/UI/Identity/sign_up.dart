@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:fs_front/Infrastructure/BackEnd/IdentityCalls/i_api_identity.dart';
 import 'package:fs_front/UI/Elements/Dialogs/club_dialog.dart';

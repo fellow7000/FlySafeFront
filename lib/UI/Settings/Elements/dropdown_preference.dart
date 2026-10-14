@@ -38,7 +38,7 @@ class DropdownPreference<T> extends ConsumerWidget {
       title: Text(title, style: titleTextStyle,),
       subtitle: description == null ? null : Text(description!, style: descriptionTextStyle),
       trailing: DropdownButton<T>(
-        items: values.map((var val) {
+        items: values.map((T val) {
           return DropdownMenuItem<T>(
             value: val,
             child: Text(

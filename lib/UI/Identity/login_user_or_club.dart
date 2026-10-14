@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Base/call_error.dart';
 import 'package:fs_front/Core/DTO/Identity/authentification_requrest.dart';
 import 'package:fs_front/Core/DTO/Identity/authentification_response.dart';
@@ -169,7 +170,7 @@ class LogInUserOrClubWidget extends ConsumerState<LogInUserOrClub> {
             items: widget.publicClubs?.map((String club) {
               return DropdownMenuItem<String>(value: club, child: Padding(padding: const EdgeInsets.only(left: 5), child: FittedBox(fit: BoxFit.scaleDown, child: Text(club, style: textStyleBodyLarge,))));
             }).toList(),
-            value: ref.watch(selectedPublicClubProvider),
+            initialValue: ref.watch(selectedPublicClubProvider),
             hint: Padding(padding: const EdgeInsets.only(left: 10), child: Text(widget.selectClubHint, style: textStyleBodyLarge,)),
             onChanged: (club) => _selectPublicClub(club!)),
       );

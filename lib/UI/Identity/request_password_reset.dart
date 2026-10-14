@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Identity/reset_user_password_request.dart';
 import 'package:fs_front/Core/Vars/globals.dart';
 import 'package:fs_front/Helpers/app_helper.dart';

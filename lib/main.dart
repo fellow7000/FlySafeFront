@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:fs_front/UI/Themes/app_themes.dart';
 
 import 'Core/Vars/globals.dart';
@@ -22,7 +23,7 @@ void main() async {
   // something to keep them entertained during initialization
   //runApp(const Center(child: CircularProgressIndicator()));
   await EasyLocalization.ensureInitialized();
-  final container = ProviderContainer();
+  final container = createAppContainer();
   await AppHelper.initApp(container);
 
   // var startLocale;
@@ -40,14 +41,24 @@ void main() async {
     UncontrolledProviderScope(
       container: container,
       child: EasyLocalization(
-          supportedLocales: [localeEN, localeDE, localeRU],
-          path: langPath,
-          //startLocale: startLocale,
-          fallbackLocale: localeEN,
-          useOnlyLangCode: true,
-          saveLocale: true,
-          child: const FlySafeApp()),
+        supportedLocales: [localeEN, localeDE, localeRU],
+        path: langPath,
+        //startLocale: startLocale,
+        fallbackLocale: localeEN,
+        useOnlyLangCode: true,
+        saveLocale: true,
+        child: const FlySafeApp(),
+      ),
     ),
+  );
+}
+
+/// Preserve Riverpod 2's explicit retry behavior during the SDK upgrade.
+/// Some existing FutureProviders submit writes and must not retry implicitly.
+ProviderContainer createAppContainer({List<Override> overrides = const []}) {
+  return ProviderContainer(
+    overrides: overrides,
+    retry: (retryCount, error) => null,
   );
 }
 

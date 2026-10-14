@@ -20,9 +20,9 @@ class UserOrClubProfile extends ConsumerWidget {
 
   final UserProfileResponse userProfile;
 
-  late final AutoDisposeProvider<TextEditingController> _userNameControllerProvider;
-  late final AutoDisposeProvider<TextEditingController> _emailInputControllerProvider;
-  late final AutoDisposeProvider<TextEditingController> _registrationDateControllerProvider;
+  late final Provider<TextEditingController> _userNameControllerProvider;
+  late final Provider<TextEditingController> _emailInputControllerProvider;
+  late final Provider<TextEditingController> _registrationDateControllerProvider;
   late final String registrationDateUTC;
   late final String registrationTimeUTC;
 

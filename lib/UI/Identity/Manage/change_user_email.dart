@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/UI/Elements/basis_form.dart';
 
 import '../../../Core/DTO/Base/call_error.dart';
@@ -32,7 +33,7 @@ class ChangeUserEmail extends ConsumerWidget {
           (ref) => const CheckValueRequest(value: "", timeStamp: "", apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.checkEmailFreeFreeHandler, isAuthorized: true));
   final _emailValidationStateProvider = StateProvider<ValidationStatus>((ref) => ValidationStatus.ok);
 
-  late final AutoDisposeProvider<TextEditingController> _emailInputControllerProvider;
+  late final Provider<TextEditingController> _emailInputControllerProvider;
 
   List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
 
