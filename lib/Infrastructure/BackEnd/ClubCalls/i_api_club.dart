@@ -10,10 +10,8 @@ import '../api_call.dart';
 //we need it as an abstract class for mock and real implementations!
 abstract class IApiClub extends ApiCall {
   static const String clubController = "api/club";
-  static const String webSocketController = "api/websocket";
   static const String getPublicClubsHandler = "getpublicclubs";
   static const String checkClubNameFreeHandler = "checkclubnamefree";
-  static const String checkValueSocket = "checkvaluesocket";
   static const String createClubHandler = "createclub";
   static const String joinClubHandler = "joinclub";
   static const String getClubDetailsHandler = "getclubdetails";

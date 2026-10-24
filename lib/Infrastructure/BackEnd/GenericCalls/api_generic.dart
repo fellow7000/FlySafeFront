@@ -24,6 +24,16 @@ class ApiGeneric implements IApiGeneric {
         isAuthorised: checkValueRequest.isAuthorized)
     ;
 
+    if (callResponse.statusCode == BackEndCall.tooManyRequestsCode) {
+      return CheckValueResponse(
+          resultCode: AppResultCode.conflict, isValueValid: false, timeStamp: checkValueRequest.timeStamp, errors: const [BackEndCall.tooManyRequestsError]);
+    }
+
+    if (!callResponse.success) {
+      return CheckValueResponse(
+          resultCode: AppResultCode.conflict, isValueValid: false, timeStamp: checkValueRequest.timeStamp, errors: callResponse.callError ?? const []);
+    }
+
     try {
       var body = CheckValueResponse.fromJson(callResponse.body);
       return body;

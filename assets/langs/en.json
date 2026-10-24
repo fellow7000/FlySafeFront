@@ -230,6 +230,7 @@
   "InvldNamePsw" : "Invalid Username or Password",
   "EmailAlreadyTaken" : "Email already taken",
   "ValidationError" : "Validation error",
+  "TooManyRequests" : "Too many checks. Please wait a minute and try again.",
   "NoDataFnd" : "No Data found",
   "Nthng2Sync" : "Nothing to sync",
   "Nthng2DL" : "Nothing to download",

@@ -333,9 +333,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
                 allowEmptyValue: true,
                 prefixIcon: clubIcon,
                 controller: ref.watch(_clubNameInputControllerProvider),
-                // inputFormatters: [
-                //   FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
-                // ],
+                inputFormatters: [LengthLimitingTextInputFormatter(maxClubNameLength)],
                 focusNode: _focusClubName,
                 readOnly: isReadOnly,
                 style: Theme.of(context).textTheme.titleLarge!.apply(fontSizeDelta: fontSizeDelta),
@@ -671,7 +669,9 @@ class SignUpWidget extends ConsumerState<SignUp> {
         userName: ref.read(_userNameInputControllerProvider).text,
         email: ref.read(_emailInputControllerProvider).text,
         userPassword: ref.read(_userPasswordInputControllerProvider).text,
-        clubName: ref.watch(_clubNameInputControllerProvider).text.isNotEmpty?ref.watch(_clubNameInputControllerProvider).text:ref.read(_userNameInputControllerProvider).text,
+        clubName: ref.read(_clubNameInputControllerProvider).text.trim().isNotEmpty
+            ? ref.read(_clubNameInputControllerProvider).text.trim()
+            : ref.read(_userNameInputControllerProvider).text.trim(),
         clubPassword: _clubPasswordInputController.text,
         clubComment: _clubCommentInputController.text,
         clubType: ref.read(_isClubPublicProvider.notifier).state?ClubType.publicClub:ClubType.nonListedClub,

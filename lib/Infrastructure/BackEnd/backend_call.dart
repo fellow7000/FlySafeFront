@@ -33,11 +33,13 @@ class BackEndCall<T> {
   static const int unauthorizedCode = 401;
   static const int forbiddenCode = 403;
   static const int conflictCode = 409;
+  static const int tooManyRequestsCode = 429;
   static const int callExceptionCode = -1;
   static const CallError callError = CallError(code: "CallTriggeredError", description: "Call triggered a Backend Error", localError: true);
   static const CallError callExceptionError = CallError(code: "CallTriggeredException", description: "Call triggered an Exception", localError: true);
   static const CallError unauthorizationError = CallError(code: "AuthorizationFailed", description: "Wrong user credentials", localError: true);
   static const CallError badRequestError = CallError(code: "BadRequest", description: "400: Bad Request", localError: true);
+  static const CallError tooManyRequestsError = CallError(code: "TooManyRequests", description: "429: Too Many Requests", localError: true);
 
   BackEndCall({required this.webHostUri});
 

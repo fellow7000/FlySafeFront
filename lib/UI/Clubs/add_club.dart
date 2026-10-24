@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:fs_front/Core/DTO/Generic/check_value_request.dart';
-import 'package:fs_front/UI/Elements/app_process_indicator.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../Core/DTO/Base/call_error.dart';
 import '../../Core/DTO/Club/add_club_request.dart';
@@ -22,6 +18,7 @@ import '../../Infrastructure/BackEnd/backend_call.dart';
 import '../Elements/MainSidePanel/api_error_messages.dart';
 import '../Elements/basis_form.dart';
 import '../Elements/switch_or_check_list_tile.dart';
+import '../Elements/textformfield_validate.dart';
 import '../Themes/app_themes.dart';
 
 class AddClub extends ConsumerStatefulWidget {
@@ -35,12 +32,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
   final double _myElevation = 3;
   static const double myTopPadding = 5;
 
-  WebSocketChannel? _channel;
-  static const Duration _webSocketConnectTimeout = Duration(seconds: 15);
-
-  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) =>
-      AppFormState
-          .connectingToHost); //first we need to connect to the websocket
+  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
 
   final _clubNameInputControllerProvider =
       Provider.autoDispose<TextEditingController>((ref) {
@@ -64,7 +56,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
   final _isClubNameValidProvider = StateProvider<bool>((ref) => false);
   final _clubNameValidationStateProvider =
       StateProvider<ValidationStatus>((ref) => ValidationStatus.init);
-  final _clubNameValidatorMessage = StateProvider<String?>((ref) => null);
+  final _clubNameStampProvider = StateProvider<String>((ref) => "");
+  final _checkClubNameRequestProvider = StateProvider<CheckValueRequest?>((ref) => const CheckValueRequest(
+      value: "", timeStamp: "", apiController: IApiClub.clubController, apiHandler: IApiClub.checkClubNameFreeHandler, isAuthorized: true));
 
   final TextEditingController _clubPasswordInputController =
       TextEditingController();
@@ -82,25 +76,11 @@ class AddClubWidget extends ConsumerState<AddClub> {
 
   final _isAddClubPossibleProvider = StateProvider<bool>((ref) => false);
 
-  bool _isWebSocketConnected = false;
-
   List<CallError> _callErrors =
       []; //TODO: implementation of error handling is open!
 
-  static const Widget _validateInProgress = Padding(
-    padding: EdgeInsets.all(2),
-    child: CircularProgressIndicator(),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration.zero, () => _connectToWebSocket());
-  }
-
   @override
   void dispose() {
-    _channel?.sink.close();
     _clubCommentInputController.dispose();
     _clubPasswordInputController.dispose();
     _clubPasswordConfirmationInputController.dispose();
@@ -114,7 +94,6 @@ class AddClubWidget extends ConsumerState<AddClub> {
     final iconSize = appIconBasisSize + fontSizeDelta;
     List<Widget> fields = <Widget>[];
     final isReadOnly = formState == AppFormState.processing;
-    final validationStatus = ref.watch(_clubNameValidationStateProvider);
     final isError = (formState == AppFormState.httpError ||
         formState == AppFormState.exception ||
         formState == AppFormState.resultFailed);
@@ -129,75 +108,24 @@ class AddClubWidget extends ConsumerState<AddClub> {
               ?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)),
     ));
 
-    if (ref.watch(_formStateProvider) == AppFormState.connectingToHost) {
-      fields.add(Padding(
-          padding: const EdgeInsets.only(top: formPadding, bottom: formPadding),
-          child: AppProcessIndicator(message: "StandBy".tr())));
-
-      return BasisForm(
-          formTitle: "Club".tr(),
-          form: Card(
-            elevation: _myElevation,
-            child: Padding(
-              padding: const EdgeInsets.all(formPadding),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: fields), //Sign-in Form
-            ),
-          ));
-    }
-
-    late final MaterialColor? iconColor;
-
-    if (validationStatus == ValidationStatus.init ||
-        validationStatus == ValidationStatus.validating) {
-      iconColor = null;
-    } else if (validationStatus == ValidationStatus.failed ||
-        validationStatus == ValidationStatus.notValid) {
-      iconColor = Theme.of(context).brightness == Brightness.light
-          ? notValidColorLight
-          : notValidColorDark;
-    } else if (validationStatus == ValidationStatus.ok) {
-      iconColor = Theme.of(context).brightness == Brightness.light
-          ? validColorLight
-          : validColorDark;
-    }
-
     //Club Name
     fields.add(
-      TextFormField(
+      TextFormFieldOnlineValidate(
+          validationType: ValidationType.field,
+          fieldNotValidLabel: "ClubNameAlreadyTaken".tr(),
+          isFieldValidProvider: _isClubNameValidProvider,
+          checkValueRequestProvider: _checkClubNameRequestProvider,
+          validationStateProvider: _clubNameValidationStateProvider,
+          timeStampChecker: _clubNameStampProvider,
+          prefixIcon: clubIcon,
           controller: ref.watch(_clubNameInputControllerProvider),
-          // inputFormatters: [
-          //   FilteringTextInputFormatter.deny(RegExp(r'[ ]'))
-          // ],
+          inputFormatters: [LengthLimitingTextInputFormatter(maxClubNameLength)],
           focusNode: _focusClubName,
           readOnly: isReadOnly,
           style: textStyleTitleLarge,
-          decoration: InputDecoration(
-              labelText: "ClubName".tr(),
-              labelStyle: textStyleBodyLarge,
-              prefixIcon: validationStatus == ValidationStatus.validating
-                  ? const FittedBox(
-                      fit: BoxFit.scaleDown, child: _validateInProgress)
-                  : Icon(
-                      clubIcon,
-                      size: iconSize,
-                      color: iconColor,
-                    ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  clearTextIcon,
-                  size: iconSize,
-                ),
-                onPressed: () => _clearClubNameInputField(context),
-              )),
-          onChanged: (value) => _sendNameForValidation(value),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (_) => ref.watch(_isClubNameValidProvider)
-              ? null
-              : ref.watch(_clubNameValidatorMessage),
-          onFieldSubmitted: (val) =>
-              FocusScope.of(context).requestFocus(_focusClubComment)),
+          decoration: InputDecoration(labelText: "ClubName".tr(), labelStyle: textStyleBodyLarge),
+          groupValidation: _checkAddClubPossible,
+          onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubComment)),
     );
 
     //Club Comment
@@ -433,145 +361,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
     return BasisForm(formTitle: "Clubs".tr(), form: addClubWidget);
   }
 
-  Future<void> _connectToWebSocket() async {
-    final url = AppHelper.generateUri(
-        host: ref.read(webHostProvider),
-        apiController: IApiClub.webSocketController,
-        apiHandler: IApiClub.checkValueSocket);
-    final Uri uri = Uri.parse(url
-        .toString()
-        .replaceFirst("http://", "ws://")
-        .replaceFirst("https://", "wss://"));
-
-    //do not await: closing a channel that never connected does not complete
-    _channel?.sink.close().ignore();
-    _isWebSocketConnected = false;
-
-    final channel = WebSocketChannel.connect(uri);
-    _channel = channel;
-
-    try {
-      await channel.ready.timeout(_webSocketConnectTimeout);
-    } catch (e) {
-      debugPrint('Error connecting to WebSocket: $e');
-      if (_channel == channel) _channel = null;
-      channel.sink.close().ignore();
-      //leave the start-up state; the next validation retries the connection and reports a failure
-      if (mounted && ref.read(_formStateProvider) == AppFormState.connectingToHost) {
-        ref.read(_formStateProvider.notifier).state = AppFormState.dataInput;
-      }
-      return;
-    }
-
-    if (!mounted || _channel != channel) {
-      channel.sink.close().ignore();
-      return;
-    }
-
-    _isWebSocketConnected = true;
-
-    channel.stream.listen((message) {
-      if (!mounted || _channel != channel) return;
-      _processValidationResponse(message);
-    }, onDone: () {
-      debugPrint('WebSocket disconnected');
-      if (_channel == channel) _isWebSocketConnected = false;
-    }, onError: (error) {
-      debugPrint('WebSocket error: $error');
-      if (_channel == channel) _isWebSocketConnected = false;
-    });
-
-    debugPrint('Connected to the WebSocket $url');
-    ref.read(_formStateProvider.notifier).state = AppFormState.dataInput;
-  }
-
-  void _sendNameForValidation(String value) async {
-    if (value.isEmpty) {
-      _processEmptyClubName();
-      return;
-    } else {
-      ref.read(_clubNameValidatorMessage.notifier).state = null;
-    }
-
-    ref.read(_clubNameValidationStateProvider.notifier).state =
-        ValidationStatus.validating;
-
-    String timeStamp = DateTime.now().toUtc().toString();
-
-    ref.read(clubNameValidationStampProvider.notifier).state = timeStamp;
-
-    CheckValueRequest checkValueRequest = CheckValueRequest(
-      value: value,
-      timeStamp: timeStamp,
-      apiController: '',
-      apiHandler: '',
-      isAuthorized: true,
-    );
-
-    if (!_isWebSocketConnected) {
-      await _connectToWebSocket();
-      if (!mounted) return;
-    }
-
-    final channel = _channel;
-    if (!_isWebSocketConnected || channel == null) {
-      ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
-      ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
-      ref.read(_isClubNameValidProvider.notifier).state = false;
-      _checkAddClubPossible();
-      return;
-    }
-
-    channel.sink.add(jsonEncode(checkValueRequest.toJson()));
-  }
-
-  void _processValidationResponse(String message) {
-    if (ref.read(_clubNameInputControllerProvider).text.isEmpty) {
-      _processEmptyClubName();
-      return;
-    }
-
-    try {
-      // 25.11.2024 the WebSocket API returns a bare bool; it does not echo the request time stamp yet
-      final isValueValid = jsonDecode(message) as bool;
-
-      if (isValueValid) {
-        ref.read(_clubNameValidatorMessage.notifier).state = null;
-        ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.ok;
-        ref.read(_isClubNameValidProvider.notifier).state = true;
-      } else {
-        ref.read(_clubNameValidatorMessage.notifier).state = "ClubNameAlreadyTaken".tr();
-        ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
-        ref.read(_isClubNameValidProvider.notifier).state = false;
-      }
-
-      ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-    } catch (e) {
-      ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;
-    }
-    
-    _checkAddClubPossible();
-  }
-
-  void _clearClubNameInputField(context) {
-    ref.read(_clubNameInputControllerProvider).clear();
-    _sendNameForValidation("");
-    _checkAddClubPossible();
-    FocusScope.of(context).requestFocus(_focusClubName);
-  }
-
   void _clearClubCommentInputField() {
     _clubCommentInputController.text = "";
     FocusScope.of(context).requestFocus(_focusClubComment);
-  }
-
-  void _processEmptyClubName() {
-    ref.read(_isClubNameValidProvider.notifier).state = false;
-    ref.read(_clubNameValidationStateProvider.notifier).state =
-        ValidationStatus.notValid;
-    ref.read(_clubNameValidatorMessage.notifier).state = "FieldIsRequired".tr();
-    _checkAddClubPossible();
-    //if (groupValidation != null) groupValidation!();
   }
 
   void _toggleClubPasswordVisibility() {
@@ -622,7 +414,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
     ref.read(_formStateProvider.notifier).state = AppFormState.processing;
 
     ref.read(addClubRequestProvider.notifier).state = AddClubRequest(
-        clubName: ref.read(_clubNameInputControllerProvider).text,
+        clubName: ref.read(_clubNameInputControllerProvider).text.trim(),
         clubPassword: _clubPasswordInputController.text,
         clubComment: _clubCommentInputController.text,
         clubType: ref.read(_isClubPublicProvider.notifier).state

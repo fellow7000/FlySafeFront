@@ -41,6 +41,9 @@ bool loadUserOrClubProfile = true; //if we need to load user / club profile
 //Icons
 const double appIconBasisSize = 24;
 
+/// Must match Club.MaxClubNameLength on the back end.
+const int maxClubNameLength = 256;
+
 const IconData loginIcon = Icons.login;
 const IconData logOutIcon = Icons.logout;
 const IconData chevronExpand = Icons.chevron_right;
