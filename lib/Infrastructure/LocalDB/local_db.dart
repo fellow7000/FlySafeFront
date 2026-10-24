@@ -69,12 +69,13 @@ class LocalDB {
 
   Future createDB5(Database db) async {
     //pre-process the script removing \n and # characters, creating tables one by one
-    createDBv5Script.replaceAll("\n", "").split("#").forEach((cmd) async {
+    for (final cmd in createDBv5Script.replaceAll("\n", "").split("#")) {
+      if (cmd.trim().isEmpty) continue;
       await db.execute(cmd);
-    });
+    }
 
     //insert root folder into Notes table with Id = -1
-    db.rawInsert(
+    await db.rawInsert(
         "INSERT Into $Notes_Tbl ($NOTE_ID, $NOTE_TYPE, $LASTM, $NOTE_SUBFLDR, $NOTE_NAME, $DELETED)"
             " VALUES (?,?,datetime('now'),?,?,?)",
         [rootFolder, NoteType.folder.index, -1, rootFolderName.tr(), false]);
@@ -82,17 +83,17 @@ class LocalDB {
 
   Future updateDB4toDB5(Database db) async {
     //TODO: to implement
-    throw UnimplementedError;
+    throw UnimplementedError("Local DB migration from version 4 to 5 is not implemented");
   }
 
   Future updateDB3toDB4(Database db) async {
     //TODO: to implement
-    throw UnimplementedError;
+    throw UnimplementedError("Local DB migration from version 3 to 4 is not implemented");
   }
 
   Future updateDB2toDB3(Database db) async {
     //TODO: to implement
-    throw UnimplementedError;
+    throw UnimplementedError("Local DB migration from version 2 to 3 is not implemented");
   }
 
   redoDB(String script) async {
@@ -102,9 +103,10 @@ class LocalDB {
 
     var batch = db.batch();
     //preprocess the script removing \n and # characters, creating tables one by one
-    script.replaceAll("\n", "").split("#").forEach((cmd) {
+    for (final cmd in script.replaceAll("\n", "").split("#")) {
+      if (cmd.trim().isEmpty) continue;
       batch.execute(cmd);
-    });
+    }
     await batch.commit();
   }
 

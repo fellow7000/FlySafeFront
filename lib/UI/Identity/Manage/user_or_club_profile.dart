@@ -20,46 +20,15 @@ class UserOrClubProfile extends ConsumerWidget {
 
   final UserProfileResponse userProfile;
 
-  late final Provider<TextEditingController> _userNameControllerProvider;
-  late final Provider<TextEditingController> _emailInputControllerProvider;
-  late final Provider<TextEditingController> _registrationDateControllerProvider;
   late final String registrationDateUTC;
   late final String registrationTimeUTC;
 
   UserOrClubProfile({required this.userProfile, super.key}) {
-    _userNameControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-      final textController = TextEditingController(text: userProfile.userName);
-      ref.onDispose(() {
-        textController.dispose();
-      });
-      return textController;
-    });
-
-    _emailInputControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-      final textController = TextEditingController(text: userProfile.email);
-      ref.onDispose(() {
-        textController.dispose();
-      });
-      return textController;
-    });
-
     String dateTimeUTC = userProfile.createdOn;
     String dateUTC = dateTimeUTC.substring(0, 10);
     registrationTimeUTC = dateTimeUTC.substring(11, 19);
     DateTime rawDateUTC = DateTime.parse(dateUTC);
     registrationDateUTC = dtf.formatDate(rawDateUTC, dateFormats[0]);
-
-    _registrationDateControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-      String dateTimeUTC = userProfile.createdOn;
-      String dateUTC = dateTimeUTC.substring(0, 10);
-      String timeUTC = dateTimeUTC.substring(11, 19);
-      DateTime rawDateUTC = DateTime.parse(dateUTC);
-      final textController = TextEditingController(text: "${dtf.formatDate(rawDateUTC, dateFormats[0])}, $timeUTC");
-      ref.onDispose(() {
-        textController.dispose();
-      });
-      return textController;
-    });
   }
 
   @override
@@ -151,7 +120,7 @@ class UserOrClubProfile extends ConsumerWidget {
           leading: Icon(passwordIcon, size: iconSize),
           title: Text("Password".tr(), style: textStyleTitleLarge,),
           trailing: Icon(chevronExpand, size: iconSize),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeUserPassword())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangeUserPassword())),
         )
       );
 

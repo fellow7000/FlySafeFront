@@ -51,7 +51,6 @@ class DeleteUserAccountWidget extends ConsumerState<DeleteUserAccount> {
   Widget build(BuildContext context) {
     final formState = ref.watch(_formStateProvider);
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
-    final iconSize = appIconBasisSize + fontSizeDelta;
     final isProcessing = formState == AppFormState.processing;
     final isError = (formState == AppFormState.httpError ||
         formState == AppFormState.exception ||
@@ -86,7 +85,7 @@ class DeleteUserAccountWidget extends ConsumerState<DeleteUserAccount> {
         title: Text("IConfirm".tr(),
             textAlign: TextAlign.center,
             style: textStyleTitleLarge.apply(color: Colors.red)),
-        onChanged: (val) => _toggleDelConfirmation(ref, val),
+        onChanged: isProcessing ? null : (val) => _toggleDelConfirmation(ref, val),
       ), //TODO: replace with code label
     ));
 

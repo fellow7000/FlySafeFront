@@ -31,6 +31,7 @@ class BackEndCall<T> {
   static const int okCode = 200;
   static const int badRequest400Code = 400;
   static const int unauthorizedCode = 401;
+  static const int forbiddenCode = 403;
   static const int conflictCode = 409;
   static const int callExceptionCode = -1;
   static const CallError callError = CallError(code: "CallTriggeredError", description: "Call triggered a Backend Error", localError: true);
@@ -73,11 +74,9 @@ class BackEndCall<T> {
             payload = jsonEncode(payloadTemp.toJson());
             //debugPrint(jsonEncode(payload.toJson()));
           }
-          debugPrint(payload);
+          //request bodies are not logged as they may contain credentials
           response = await http.post(uri, headers: headers, body: payload).timeout(BackEndCall.callTimeOut);
           break;
-        default:
-          throw UnimplementedError("Wrong API Type call");
       }
 
       if (response.statusCode == BackEndCall.okCode) {

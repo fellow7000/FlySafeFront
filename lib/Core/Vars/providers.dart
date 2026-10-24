@@ -34,16 +34,15 @@ final dateTimeTickerProvider = StreamProvider<int>((ref) {
   return Stream.periodic(const Duration(seconds: 1), (tick) => tick);
 });
 
-final dateTimeLocProvider = StateProvider((ref)
-{
+final dateTimeLocProvider = Provider<String>((ref) {
   ref.watch(dateTimeTickerProvider);
   final dateTimeOrder = ref.watch(dateTimeOrderProvider);
   final dateFormat = ref.watch(dateFormatProvider);
 
   return AppHelper.getCurrentDateTime(dateTimeType: DateTimeType.loc, dateFormat: dateFormat, dateTimeOrder: dateTimeOrder);
-} );
+});
 
-final dateTimeUTCProvider = StateProvider((ref) {
+final dateTimeUTCProvider = Provider<String>((ref) {
   ref.watch(dateTimeTickerProvider);
   final dateTimeOrder = ref.watch(dateTimeOrderProvider);
   final dateFormat = ref.watch(dateFormatProvider);
@@ -79,12 +78,12 @@ final userProfileProvider = StateProvider<UserProfileResponse?>((ref) => null);
 
 //final backEndUser = Provider<BackEndIdentity>((ref) => FakeBackEndIdentity());
 final backEndUser = Provider<IApiIdentity>((ref) {
-  final Uri webHostUri = ref.read(webHostProvider.notifier).state;
+  final Uri webHostUri = ref.watch(webHostProvider);
   return ApiIdentity(webHostUri: webHostUri);
 });
 
 final backEndGeneric = Provider<IApiGeneric>((ref) {
-  final Uri webHostUri = ref.read(webHostProvider.notifier).state;
+  final Uri webHostUri = ref.watch(webHostProvider);
   return ApiGeneric(webHostUri: webHostUri);
 });
 

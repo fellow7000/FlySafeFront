@@ -36,4 +36,32 @@ void main() {
     expect(prefs.getBool(PreferencesHelper.isKeepDisplayOnPref), isFalse);
     expect(prefs.getString(PreferencesHelper.appModePref), 'flight');
   });
+
+  test('invalid stored preferences fall back to defaults', () async {
+    SharedPreferences.setMockInitialValues({
+      PreferencesHelper.appLanguagePref: 'unknownLanguage',
+      PreferencesHelper.appModePref: 'unknownMode',
+      PreferencesHelper.dateTimeOrderPref: 'unknownOrder',
+      PreferencesHelper.loggedAsPref: 'unknownLogAs',
+      PreferencesHelper.dateFormatPref: ['unknown'],
+    });
+    final container = createAppContainer();
+    addTearDown(container.dispose);
+    await AppHelper.initApp(container);
+    expect(container.read(appLocaleProvider).localeName, autoLanguage);
+    expect(container.read(appModeProvider), AppMode.online);
+    expect(container.read(dateTimeOrderProvider), DateTimeOrder.timeDate);
+    expect(container.read(authStateProvider), LogAs.none);
+    expect(container.read(dateFormatProvider), dateISO);
+  });
+
+  test('stored date format is restored by value', () async {
+    SharedPreferences.setMockInitialValues({
+      PreferencesHelper.dateFormatPref: List<String>.of(dateEU),
+    });
+    final container = createAppContainer();
+    addTearDown(container.dispose);
+    await AppHelper.initApp(container);
+    expect(container.read(dateFormatProvider), dateEU);
+  });
 }

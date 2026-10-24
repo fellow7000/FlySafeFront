@@ -35,8 +35,6 @@ class AppDialogs{
           case AppBuild.release:
             bldType = "Release".tr();
             break;
-          default:
-            bldType = "Debug".tr();
         }
       }
 

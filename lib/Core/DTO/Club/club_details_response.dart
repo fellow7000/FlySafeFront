@@ -22,8 +22,8 @@ class ClubDetailsResponse extends ApiBaseResponse {
   factory ClubDetailsResponse.fromJson(Map<String, dynamic> json) {
     return ClubDetailsResponse(
       resultCode: getAppResultEnum(json["ResultCode"]),
-      club: ClubDTO.fromJson(json["Club"]),
-      allowedActions: AllowedActionsDTO.fromJson(json["AllowedActions"]),
+      club: json["Club"] == null ? null : ClubDTO.fromJson(json["Club"]),
+      allowedActions: AllowedActionsDTO.fromJson(json["AllowedActions"] ?? const <String, dynamic>{}),
       errors: List.of(json["Errors"]??[]).map((e) => CallError.fromJson(e)).toList(),
     );
   }

@@ -20,11 +20,18 @@ import '../../Elements/MainSidePanel/api_error_messages.dart';
 import '../../Elements/textformfield_validate.dart';
 import '../../Themes/app_themes.dart';
 
-class ChangeUserEmail extends ConsumerWidget {
-  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
-
+class ChangeUserEmail extends ConsumerStatefulWidget {
+  const ChangeUserEmail({required this.userProfile, super.key});
 
   final UserProfileResponse userProfile;
+
+  @override
+  ConsumerState<ChangeUserEmail> createState() => _ChangeUserEmailState();
+}
+
+class _ChangeUserEmailState extends ConsumerState<ChangeUserEmail> {
+  final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) => AppFormState.dataInput);
+
 
   static const double myTopPadding = 0;
 
@@ -33,22 +40,18 @@ class ChangeUserEmail extends ConsumerWidget {
           (ref) => const CheckValueRequest(value: "", timeStamp: "", apiController: IApiIdentity.identityController, apiHandler: IApiIdentity.checkEmailFreeFreeHandler, isAuthorized: true));
   final _emailValidationStateProvider = StateProvider<ValidationStatus>((ref) => ValidationStatus.ok);
 
-  late final Provider<TextEditingController> _emailInputControllerProvider;
+  late final Provider<TextEditingController> _emailInputControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
+    final textController = TextEditingController(text: widget.userProfile.email);
+    ref.onDispose(() {
+      textController.dispose();
+    });
+    return textController;
+  });
 
   List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
 
-  ChangeUserEmail({required this.userProfile, super.key}) {
-    _emailInputControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-      final textController = TextEditingController(text: userProfile.email);
-      ref.onDispose(() {
-        textController.dispose();
-      });
-      return textController;
-    });
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final formState = ref.watch(_formStateProvider);
     final isEnabled = formState != AppFormState.processing;
     final logAs = ref.watch(authStateProvider);
@@ -58,7 +61,7 @@ class ChangeUserEmail extends ConsumerWidget {
 
     fields.add(Padding(
       padding: const EdgeInsets.all(10),
-      child: Text("${"User".tr()} ${userProfile.userName}",
+      child: Text("${"User".tr()} ${widget.userProfile.userName}",
           textAlign: TextAlign.center, style: textStyleHeadlineSmall), //TODO: replace with code label
     ));
 

@@ -228,7 +228,6 @@
   "CntctHst" : "Contacting Host...",
   "AppNotSup" : "Your App-Version is not supported, please upgrade",
   "InvldNamePsw" : "Invalid Username or Password",
-  "UserNameAlreadyTake" : "Username already taken",
   "EmailAlreadyTaken" : "Email already taken",
   "ValidationError" : "Validation error",
   "NoDataFnd" : "No Data found",

@@ -243,9 +243,10 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
     var joinClubResult = ref.watch(joinClubProvider.future);
 
     joinClubResult.then((data) {
+      if (!mounted) return;
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-        if (mounted) {
+        if (context.mounted) {
           AppHelper.showSnack(context: context, message: "WelcomeToClub".tr(args: [_clubNameInputController.text]));
           ref.invalidate(getUserProfileProvider);
           Navigator.pop(context);
@@ -255,6 +256,7 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;
       }
     }).onError((error, stackTrace) {
+      if (!mounted) return;
       _callErrors = [BackEndCall.callExceptionError];
       ref.read(_formStateProvider.notifier).state = AppFormState.httpError;
     });

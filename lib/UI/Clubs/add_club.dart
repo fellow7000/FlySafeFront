@@ -35,7 +35,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
   final double _myElevation = 3;
   static const double myTopPadding = 5;
 
-  late WebSocketChannel _channel;
+  WebSocketChannel? _channel;
+  static const Duration _webSocketConnectTimeout = Duration(seconds: 15);
 
   final _formStateProvider = StateProvider.autoDispose<AppFormState>((ref) =>
       AppFormState
@@ -99,7 +100,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
 
   @override
   void dispose() {
-    _channel.sink.close();
+    _channel?.sink.close();
     _clubCommentInputController.dispose();
     _clubPasswordInputController.dispose();
     _clubPasswordConfirmationInputController.dispose();
@@ -432,9 +433,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
     return BasisForm(formTitle: "Clubs".tr(), form: addClubWidget);
   }
 
-  void _connectToWebSocket() async {
+  Future<void> _connectToWebSocket() async {
     final url = AppHelper.generateUri(
-        host: ref.read(webHostProvider.notifier).state,
+        host: ref.read(webHostProvider),
         apiController: IApiClub.webSocketController,
         apiHandler: IApiClub.checkValueSocket);
     final Uri uri = Uri.parse(url
@@ -442,19 +443,42 @@ class AddClubWidget extends ConsumerState<AddClub> {
         .replaceFirst("http://", "ws://")
         .replaceFirst("https://", "wss://"));
 
-    _channel = WebSocketChannel.connect(uri);
+    //do not await: closing a channel that never connected does not complete
+    _channel?.sink.close().ignore();
+    _isWebSocketConnected = false;
+
+    final channel = WebSocketChannel.connect(uri);
+    _channel = channel;
+
+    try {
+      await channel.ready.timeout(_webSocketConnectTimeout);
+    } catch (e) {
+      debugPrint('Error connecting to WebSocket: $e');
+      if (_channel == channel) _channel = null;
+      channel.sink.close().ignore();
+      //leave the start-up state; the next validation retries the connection and reports a failure
+      if (mounted && ref.read(_formStateProvider) == AppFormState.connectingToHost) {
+        ref.read(_formStateProvider.notifier).state = AppFormState.dataInput;
+      }
+      return;
+    }
+
+    if (!mounted || _channel != channel) {
+      channel.sink.close().ignore();
+      return;
+    }
 
     _isWebSocketConnected = true;
 
-    _channel.stream.listen((message) {
-      // Handle incoming messages here
+    channel.stream.listen((message) {
+      if (!mounted || _channel != channel) return;
       _processValidationResponse(message);
     }, onDone: () {
       debugPrint('WebSocket disconnected');
-      _isWebSocketConnected = false;
+      if (_channel == channel) _isWebSocketConnected = false;
     }, onError: (error) {
-      debugPrint('Error connecting to WebSocket: $error');
-      _isWebSocketConnected = false;
+      debugPrint('WebSocket error: $error');
+      if (_channel == channel) _isWebSocketConnected = false;
     });
 
     debugPrint('Connected to the WebSocket $url');
@@ -485,41 +509,30 @@ class AddClubWidget extends ConsumerState<AddClub> {
     );
 
     if (!_isWebSocketConnected) {
-      _connectToWebSocket();
-      //TODO: how to check if connection is really established?..
+      await _connectToWebSocket();
+      if (!mounted) return;
     }
 
-    //ref.read(_formStateProvider.notifier).state = AppFormState.processing;
+    final channel = _channel;
+    if (!_isWebSocketConnected || channel == null) {
+      ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
+      ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
+      ref.read(_isClubNameValidProvider.notifier).state = false;
+      _checkAddClubPossible();
+      return;
+    }
 
-    _channel.sink.add(jsonEncode(checkValueRequest.toJson()));
+    channel.sink.add(jsonEncode(checkValueRequest.toJson()));
   }
 
   void _processValidationResponse(String message) {
-    if (ref.watch(_clubNameInputControllerProvider).text.isEmpty) {
+    if (ref.read(_clubNameInputControllerProvider).text.isEmpty) {
       _processEmptyClubName();
       return;
     }
 
     try {
-      // 25.11.2024 refactoring to drop CheckValueResponse in favor of CheckValue API, which returns bool
-      // final checkResult = CheckValueResponse.fromJson(jsonDecode(message));
-
-      // if (checkResult.resultCode == AppResultCode.ok && checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
-      //   ref.read(_clubNameValidatorMessage.notifier).state = null;
-      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.ok;
-      //   ref.read(_isClubNameValidProvider.notifier).state = true;
-      // } else if (checkResult.resultCode == AppResultCode.ok && !checkResult.isValueValid && checkResult.timeStamp == ref.read(clubNameValidationStampProvider.notifier).state) {
-      //   ref.read(_clubNameValidatorMessage.notifier).state = "ClubNameAlreadyTaken".tr();
-      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.notValid;
-      //   ref.read(_isClubNameValidProvider.notifier).state = false;
-      // } else if (checkResult.resultCode != AppResultCode.ok || checkResult.timeStamp == ""){
-      //   ref.read(_clubNameValidatorMessage.notifier).state = "ValidationError".tr();
-      //   ref.read(_clubNameValidationStateProvider.notifier).state = ValidationStatus.failed;
-      //   ref.read(_isClubNameValidProvider.notifier).state = false;
-      // } else {
-      //   debugPrint("Request Timestamp=${checkResult.timeStamp}, Provider Timestamp = ${ref.read(clubNameValidationStampProvider.notifier).state}");
-      // }
-
+      // 25.11.2024 the WebSocket API returns a bare bool; it does not echo the request time stamp yet
       final isValueValid = jsonDecode(message) as bool;
 
       if (isValueValid) {
@@ -541,7 +554,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
   }
 
   void _clearClubNameInputField(context) {
-    ref.watch(_clubNameInputControllerProvider).clear();
+    ref.read(_clubNameInputControllerProvider).clear();
     _sendNameForValidation("");
     _checkAddClubPossible();
     FocusScope.of(context).requestFocus(_focusClubName);
@@ -602,14 +615,14 @@ class AddClubWidget extends ConsumerState<AddClub> {
   }
 
   _addClub() {
-    if (!ref.watch(_isAddClubPossibleProvider)) return;
+    if (!ref.read(_isAddClubPossibleProvider)) return;
 
     _callErrors = [];
 
     ref.read(_formStateProvider.notifier).state = AppFormState.processing;
 
     ref.read(addClubRequestProvider.notifier).state = AddClubRequest(
-        clubName: ref.watch(_clubNameInputControllerProvider).text,
+        clubName: ref.read(_clubNameInputControllerProvider).text,
         clubPassword: _clubPasswordInputController.text,
         clubComment: _clubCommentInputController.text,
         clubType: ref.read(_isClubPublicProvider.notifier).state
@@ -620,9 +633,10 @@ class AddClubWidget extends ConsumerState<AddClub> {
     var addClubResult = ref.watch(addClubProvider.future);
 
     addClubResult.then((data) {
+      if (!mounted) return;
       if (data.resultCode == AppResultCode.ok) {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultOk;
-        if (mounted) {
+        if (context.mounted) {
           AppHelper.showSnack(context: context, message: "ClubCreated".tr());
           ref.invalidate(getUserProfileProvider);
           Navigator.pop(context);
@@ -632,6 +646,7 @@ class AddClubWidget extends ConsumerState<AddClub> {
         ref.read(_formStateProvider.notifier).state = AppFormState.resultFailed;
       }
     }).onError((error, stackTrace) {
+      if (!mounted) return;
       _callErrors = [BackEndCall.callExceptionError];
       ref.read(_formStateProvider.notifier).state = AppFormState.httpError;
     });

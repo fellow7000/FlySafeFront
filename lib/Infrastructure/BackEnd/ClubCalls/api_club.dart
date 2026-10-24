@@ -92,6 +92,8 @@ class ApiClub implements IApiClub {
 
     if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
       throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.forbiddenCode) {
+      throw Forbidden();
     } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
       try {
         var body = ClubDetailsResponse.fromJson(callResponse.body);

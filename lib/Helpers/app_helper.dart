@@ -51,17 +51,14 @@ class AppHelper {
     //these values defines sizes for Web & Desktop
     double smallWidth = 500;
     double midWidth = 700;
-    double largeWidth = 1000;
 
     if (defaultTargetPlatform == TargetPlatform.android){
       smallWidth = 600;
       midWidth = 840;
-      largeWidth = 1000;
     }
     else if (defaultTargetPlatform == TargetPlatform.iOS){
       smallWidth = 450;
       midWidth = 800;
-      largeWidth = 1000;
     }
 
     if (width < smallWidth) {

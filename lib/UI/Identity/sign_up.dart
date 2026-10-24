@@ -662,7 +662,7 @@ class SignUpWidget extends ConsumerState<SignUp> {
   }
 
   void _signUp() {
-    final form = _formKey.currentState; //TODO: what to do with form validation?..
+    //TODO: validate the form via _formKey before submitting
 
     _callErrors = [];
     ref.read(_signUpStateProvider.notifier).state = AppFormState.processing;

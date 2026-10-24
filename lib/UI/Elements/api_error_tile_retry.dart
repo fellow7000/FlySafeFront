@@ -27,7 +27,6 @@ class ApiErrorTileRetry extends ConsumerWidget {
     if (retryCallBack!=null) callBack = retryCallBack!;
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final iconSize = appIconBasisSize + fontSizeDelta;
-    TextStyle? textStyle = Theme.of(context).textTheme.headlineSmall?.apply(fontSizeDelta: deltaSize);
     TextStyle? headLineSmallRed = Theme.of(context).textTheme.headlineSmall?.apply(fontSizeDelta: deltaSize, color: Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark);
     TextStyle? bodyMediumRed = Theme.of(context).textTheme.bodyMedium?.apply(fontSizeDelta: deltaSize, color: Theme.of(context).brightness == Brightness.light ? notValidColorLight : notValidColorDark);
 

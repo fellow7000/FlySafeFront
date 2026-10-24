@@ -17,10 +17,14 @@ import '../../../Infrastructure/BackEnd/backend_call.dart';
 import '../../Elements/MainSidePanel/api_error_messages.dart';
 import '../../Themes/app_themes.dart';
 
-class ChangeUserPassword extends ConsumerWidget {
+class ChangeUserPassword extends ConsumerStatefulWidget {
+  const ChangeUserPassword({super.key});
 
-  ChangeUserPassword({super.key,
-  });
+  @override
+  ConsumerState<ChangeUserPassword> createState() => _ChangeUserPasswordState();
+}
+
+class _ChangeUserPasswordState extends ConsumerState<ChangeUserPassword> {
 
   final _formKey = GlobalKey<FormState>();
 
@@ -70,7 +74,16 @@ class ChangeUserPassword extends ConsumerWidget {
   List<CallError> _callErrors = []; //TODO: implementation of error handling is open!
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _focusCurrentPassword.dispose();
+    _focusNewPassword.dispose();
+    _focusNewPasswordConfirmation.dispose();
+    _focusNodeChangeButton.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final formState = ref.watch(_formStateProvider);
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final iconSize = appIconBasisSize + fontSizeDelta;
