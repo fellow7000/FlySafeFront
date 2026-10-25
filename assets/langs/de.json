@@ -562,5 +562,20 @@
   "MlCmt" : "Model Kommentar",
   "PlCmt" : "Flugzeug Kommentar",
   "Owner" : "Besitzer",
-  "LastM" : "Geändert"
+  "LastM" : "Geändert",
+  "LeaveClubConfirmation" : "Möchten Sie den Club \"{}\" wirklich verlassen?",
+  "LastOwnerCannotLeave" : "Sie sind der letzte Eigentümer dieses Clubs und können ihn nicht verlassen.",
+  "LastOwnerCannotLeaveHint" : "Löschen Sie stattdessen den Club, wenn er nicht mehr benötigt wird.",
+  "ClubLeft" : "Sie haben den Club verlassen",
+  "DeleteClubWarning" : "Der Club \"{}\" wird gelöscht. Dies kann nicht rückgängig gemacht werden.\n\nGeben Sie zur Bestätigung den Clubnamen und Ihr eigenes Benutzerpasswort ein.",
+  "DeleteClubTypeName" : "Clubname",
+  "DeleteClubYourPassword" : "Ihr Benutzerpasswort",
+  "ClubDeleted" : "Der Club wurde gelöscht",
+  "UserPasswordMismatch" : "Falsches Benutzerpasswort",
+  "ClubNameConfirmationMismatch" : "Der Clubname stimmt nicht überein",
+  "OtherOwnersMustApprove" : "Die anderen Eigentümer des Clubs müssen der Löschung zustimmen",
+  "CurrentClubPassword" : "Aktuelles Clubpasswort",
+  "NewClubPassword" : "Neues Clubpasswort",
+  "ConfirmNewClubPassword" : "Bestätigung des neuen Clubpassworts",
+  "ClubPasswordChanged" : "Das Clubpasswort wurde geändert"
 }

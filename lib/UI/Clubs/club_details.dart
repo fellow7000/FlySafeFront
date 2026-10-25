@@ -5,12 +5,16 @@ import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:fs_front/Helpers/identity_helper.dart';
 
 import '../../Core/DTO/Club/club_details_response.dart';
+import '../../Core/DTO/Identity/Manage/get_clubs_roles_actions.dart';
 import '../../Core/DTO/Identity/Manage/user_profile_response.dart';
 import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
 import '../Elements/api_error_tile_retry.dart';
 import '../Elements/app_process_indicator.dart';
 import '../Elements/basis_form.dart';
+import '../../Helpers/app_helper.dart';
+import 'change_club_password.dart';
+import 'club_action_dialogs.dart';
 
 class ClubDetails extends ConsumerWidget {
   const ClubDetails({required this.clubId, super.key});
@@ -51,11 +55,31 @@ class ClubDetails extends ConsumerWidget {
               );
             }
 
+            //Change Club Password Button
+            if (IdentityHelper.isActionAllowed(appAction: AppAction.changeClubPassword, allowedActions: data.allowedActions)) {
+              fields.add(
+                ElevatedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeClubPassword(clubId: clubId))),
+                  child: Text("ChangeClubPassword".tr()),
+                ),
+              );
+            }
+
+            //Leave Club Button
+            if (IdentityHelper.isActionAllowed(appAction: AppAction.leaveClub, allowedActions: data.allowedActions)) {
+              fields.add(
+                ElevatedButton(
+                  onPressed: () => _leaveOrDeleteClub(context, ref, dialog: LeaveClubDialog(clubId: clubId, clubName: club.clubName), message: "ClubLeft".tr()),
+                  child: Text("LeaveClub".tr()),
+                ),
+              );
+            }
+
             //Delete Club Button
             if (IdentityHelper.isActionAllowed(appAction: AppAction.deleteClub, allowedActions: data.allowedActions)) {
               fields.add(
                 ElevatedButton(
-                  onPressed: null, //2024-12-01 club deletion is not yet implemented
+                  onPressed: () => _leaveOrDeleteClub(context, ref, dialog: DeleteClubDialog(clubId: clubId, clubName: club.clubName), message: "ClubDeleted".tr()),
                   child: Text("DeleteClub".tr()),
                 ),
               );
@@ -85,6 +109,17 @@ class ClubDetails extends ConsumerWidget {
             ));
 
     return BasisForm(formTitle: "Club".tr(), form: clubDetailsWidget);
+  }
+
+  //after a successful leave/delete the user has no access to the club anymore: refresh the lists and go back to the club list
+  Future<void> _leaveOrDeleteClub(BuildContext context, WidgetRef ref, {required Widget dialog, required String message}) async {
+    final done = await showDialog<bool>(context: context, barrierDismissible: false, builder: (_) => dialog);
+    if (done != true || !context.mounted) return;
+
+    AppHelper.showSnack(context: context, message: message);
+    ref.invalidate(getUserProfileProvider);
+    ref.invalidate(getClubsRolesActionsProvider);
+    Navigator.of(context).pop();
   }
 
   void reloadClubDetails(WidgetRef ref) {

@@ -562,5 +562,20 @@
   "MlCmt" : "Коммент. к модели",
   "PlCmt" : "Коммент. самолёту",
   "Owner" : "Владелец",
-  "LastM" : "Изменено"
+  "LastM" : "Изменено",
+  "LeaveClubConfirmation" : "Вы действительно хотите покинуть клуб \"{}\"?",
+  "LastOwnerCannotLeave" : "Вы последний владелец этого клуба и не можете его покинуть.",
+  "LastOwnerCannotLeaveHint" : "Если клуб больше не нужен, удалите его.",
+  "ClubLeft" : "Вы покинули клуб",
+  "DeleteClubWarning" : "Клуб \"{}\" будет удалён. Это действие нельзя отменить.\n\nДля подтверждения введите название клуба и свой пароль пользователя.",
+  "DeleteClubTypeName" : "Название клуба",
+  "DeleteClubYourPassword" : "Ваш пароль пользователя",
+  "ClubDeleted" : "Клуб удалён",
+  "UserPasswordMismatch" : "Неверный пароль пользователя",
+  "ClubNameConfirmationMismatch" : "Название клуба не совпадает",
+  "OtherOwnersMustApprove" : "Удаление должны подтвердить остальные владельцы клуба",
+  "CurrentClubPassword" : "Текущий пароль клуба",
+  "NewClubPassword" : "Новый пароль клуба",
+  "ConfirmNewClubPassword" : "Подтверждение нового пароля клуба",
+  "ClubPasswordChanged" : "Пароль клуба изменён"
 }

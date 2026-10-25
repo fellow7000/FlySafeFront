@@ -8,7 +8,13 @@ import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fs_front/Core/DTO/Club/get_clubs_response.dart';
 
+import '../../../Core/DTO/Club/change_club_password_request.dart';
+import '../../../Core/DTO/Club/change_club_password_response.dart';
 import '../../../Core/DTO/Club/club_details_response.dart';
+import '../../../Core/DTO/Club/delete_club_request.dart';
+import '../../../Core/DTO/Club/delete_club_response.dart';
+import '../../../Core/DTO/Club/leave_club_request.dart';
+import '../../../Core/DTO/Club/leave_club_response.dart';
 import '../../../Core/Vars/exceptions.dart';
 import 'i_api_club.dart';
 import '../backend_call.dart';
@@ -109,6 +115,69 @@ class ApiClub implements IApiClub {
     }
   }
 
+  //leave a club
+  @override
+  Future<LeaveClubResponse> leaveClub({required LeaveClubRequest leaveClubRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.post, apiController: IApiClub.clubController, apiHandler: IApiClub.leaveClubHandler, body: leaveClubRequest, isAuthorised: true);
 
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.forbiddenCode) {
+      throw Forbidden();
+    } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
+      try {
+        return LeaveClubResponse.fromJson(callResponse.body);
+      } catch (e) {
+        debugPrint("api call ${IApiClub.leaveClubHandler} triggered an exception during body encoding ${e.toString()}");
+        throw Exception("exception during body encoding ${e.toString()}");
+      }
+    } else {
+      throw Exception("API call finished with code ${callResponse.statusCode}");
+    }
+  }
 
+  //delete a club
+  @override
+  Future<DeleteClubResponse> deleteClub({required DeleteClubRequest deleteClubRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.post, apiController: IApiClub.clubController, apiHandler: IApiClub.deleteClubHandler, body: deleteClubRequest, isAuthorised: true);
+
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.forbiddenCode) {
+      throw Forbidden();
+    } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
+      try {
+        return DeleteClubResponse.fromJson(callResponse.body);
+      } catch (e) {
+        debugPrint("api call ${IApiClub.deleteClubHandler} triggered an exception during body encoding ${e.toString()}");
+        throw Exception("exception during body encoding ${e.toString()}");
+      }
+    } else {
+      throw Exception("API call finished with code ${callResponse.statusCode}");
+    }
+  }
+
+  //change the club password
+  @override
+  Future<ChangeClubPasswordResponse> changeClubPassword({required ChangeClubPasswordRequest changeClubPasswordRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.post, apiController: IApiClub.clubController, apiHandler: IApiClub.changeClubPasswordHandler, body: changeClubPasswordRequest, isAuthorised: true);
+
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.forbiddenCode) {
+      throw Forbidden();
+    } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
+      try {
+        return ChangeClubPasswordResponse.fromJson(callResponse.body);
+      } catch (e) {
+        debugPrint("api call ${IApiClub.changeClubPasswordHandler} triggered an exception during body encoding ${e.toString()}");
+        throw Exception("exception during body encoding ${e.toString()}");
+      }
+    } else {
+      throw Exception("API call finished with code ${callResponse.statusCode}");
+    }
+  }
 }

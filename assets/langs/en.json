@@ -562,5 +562,20 @@
   "MlCmt" : "Model Comment",
   "PlCmt" : "Plane Comment",
   "Owner" : "Owner",
-  "LastM" : "Modified"
+  "LastM" : "Modified",
+  "LeaveClubConfirmation" : "Do you really want to leave the club \"{}\"?",
+  "LastOwnerCannotLeave" : "You are the last owner of this club and cannot leave it.",
+  "LastOwnerCannotLeaveHint" : "Delete the club instead if it is no longer needed.",
+  "ClubLeft" : "You have left the club",
+  "DeleteClubWarning" : "The club \"{}\" will be deleted. This cannot be undone.\n\nTo confirm, type the club name and enter your own user password.",
+  "DeleteClubTypeName" : "Club name",
+  "DeleteClubYourPassword" : "Your user password",
+  "ClubDeleted" : "The club has been deleted",
+  "UserPasswordMismatch" : "Wrong user password",
+  "ClubNameConfirmationMismatch" : "The club name does not match",
+  "OtherOwnersMustApprove" : "Other owners of the club must approve the deletion",
+  "CurrentClubPassword" : "Current Club Password",
+  "NewClubPassword" : "New Club Password",
+  "ConfirmNewClubPassword" : "New Club Password Confirmation",
+  "ClubPasswordChanged" : "Club password has been changed"
 }
