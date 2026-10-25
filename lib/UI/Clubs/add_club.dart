@@ -92,6 +92,11 @@ class AddClubWidget extends ConsumerState<AddClub> {
     final formState = ref.watch(_formStateProvider);
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final iconSize = appIconBasisSize + fontSizeDelta;
+    //theme-aware styles: the global textStyle* carry the light text colour and are invisible in dark mode
+    final textTheme = Theme.of(context).textTheme;
+    final inputStyle = textTheme.titleLarge!.apply(fontSizeDelta: fontSizeDelta);
+    final labelStyle = textTheme.bodyLarge!.apply(fontSizeDelta: fontSizeDelta + (16 - textTheme.bodyLarge!.fontSize!));
+    final hintStyle = textTheme.bodyMedium!.apply(fontSizeDelta: fontSizeDelta);
     List<Widget> fields = <Widget>[];
     final isReadOnly = formState == AppFormState.processing;
     final isError = (formState == AppFormState.httpError ||
@@ -122,8 +127,8 @@ class AddClubWidget extends ConsumerState<AddClub> {
           inputFormatters: [LengthLimitingTextInputFormatter(maxClubNameLength)],
           focusNode: _focusClubName,
           readOnly: isReadOnly,
-          style: textStyleTitleLarge,
-          decoration: InputDecoration(labelText: "ClubName".tr(), labelStyle: textStyleBodyLarge),
+          style: inputStyle,
+          decoration: InputDecoration(labelText: "ClubName".tr(), labelStyle: labelStyle),
           groupValidation: _checkAddClubPossible,
           onFieldSubmitted: (val) => FocusScope.of(context).requestFocus(_focusClubComment)),
     );
@@ -134,12 +139,12 @@ class AddClubWidget extends ConsumerState<AddClub> {
           controller: _clubCommentInputController,
           focusNode: _focusClubComment,
           readOnly: isReadOnly,
-          style: textStyleTitleLarge,
+          style: inputStyle,
           decoration: InputDecoration(
               labelText: "Comment".tr(),
-              labelStyle: textStyleBodyLarge,
+              labelStyle: labelStyle,
               hintText: "Optional".tr(),
-              hintStyle: textStyleBodyMedium,
+              hintStyle: hintStyle,
               prefixIcon: Icon(
                 commentIcon,
                 size: iconSize,
@@ -164,16 +169,16 @@ class AddClubWidget extends ConsumerState<AddClub> {
       return TextFormField(
         controller: _clubPasswordInputController,
         focusNode: _focusClubPassword,
-        style: textStyleTitleLarge,
+        style: inputStyle,
         obscureText: ref.watch(_isClubPasswordHiddenProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
         readOnly: isReadOnly,
         decoration: InputDecoration(
             labelText: "ClubPassword".tr(),
-            labelStyle: textStyleBodyLarge,
+            labelStyle: labelStyle,
             hintText: "Optional".tr(),
-            hintStyle: textStyleBodyMedium,
+            hintStyle: hintStyle,
             prefixIcon: Icon(
               passwordIcon,
               size: iconSize,
@@ -218,14 +223,9 @@ class AddClubWidget extends ConsumerState<AddClub> {
     //Club Password Confirmation
     fields.add(
       Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
-        late final MaterialColor? iconColor;
+        MaterialColor? iconColor;
 
         if (ref.watch(_isClubPasswordConfirmationValidProvider) == false) {
-          iconColor = Theme.of(context).brightness == Brightness.light
-              ? notValidColorLight
-              : notValidColorDark;
-        } else if (ref.watch(_isClubPasswordConfirmationValidProvider) ==
-            true) {
           iconColor = Theme.of(context).brightness == Brightness.light
               ? notValidColorLight
               : notValidColorDark;
@@ -239,14 +239,14 @@ class AddClubWidget extends ConsumerState<AddClub> {
         return TextFormField(
           controller: _clubPasswordConfirmationInputController,
           focusNode: _focusConfirmClubPassword,
-          style: textStyleTitleLarge,
+          style: inputStyle,
           obscureText: ref.watch(_isClubPasswordHiddenProvider),
           autovalidateMode: AutovalidateMode.onUserInteraction,
           inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
           readOnly: isReadOnly,
           decoration: InputDecoration(
               labelText: "ConfirmClubPassword".tr(),
-              labelStyle: textStyleBodyLarge,
+              labelStyle: labelStyle,
               prefixIcon: Icon(
                 passwordIcon,
                 size: iconSize,

@@ -4,9 +4,12 @@ import 'package:fs_front/Core/DTO/Club/add_club_response.dart';
 import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_request.dart';
 import 'package:fs_front/Core/DTO/Club/join_club_response.dart';
+import 'package:fs_front/Core/Vars/enums.dart';
 
 import '../Core/DTO/Club/change_club_password_request.dart';
 import '../Core/DTO/Club/change_club_password_response.dart';
+import '../Core/DTO/Club/change_club_type_request.dart';
+import '../Core/DTO/Club/change_club_type_response.dart';
 import '../Core/DTO/Club/club_details_response.dart';
 import '../Core/DTO/Club/delete_club_request.dart';
 import '../Core/DTO/Club/delete_club_response.dart';
@@ -51,5 +54,13 @@ class FakeBackEndClub implements IApiClub {
   @override
   Future<ChangeClubPasswordResponse> changeClubPassword({required ChangeClubPasswordRequest changeClubPasswordRequest}) {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<ChangeClubTypeResponse> changeClubType({required ChangeClubTypeRequest changeClubTypeRequest}) {
+    return Future.delayed(
+        const Duration(milliseconds: 300),
+        () => ChangeClubTypeResponse(
+            resultCode: AppResultCode.ok, clubId: changeClubTypeRequest.clubId, newClubType: changeClubTypeRequest.newClubType, errors: const []));
   }
 }

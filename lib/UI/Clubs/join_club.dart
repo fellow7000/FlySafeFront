@@ -58,6 +58,11 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
     final validationStatus = ref.watch(_clubNameValidationStateProvider);
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final iconSize = appIconBasisSize + fontSizeDelta;
+    //theme-aware styles: the global textStyle* carry the light text colour and are invisible in dark mode
+    final textTheme = Theme.of(context).textTheme;
+    final inputStyle = textTheme.titleLarge!.apply(fontSizeDelta: fontSizeDelta);
+    final labelStyle = textTheme.bodyLarge!.apply(fontSizeDelta: fontSizeDelta + (16 - textTheme.bodyLarge!.fontSize!));
+    final hintStyle = textTheme.bodyMedium!.apply(fontSizeDelta: fontSizeDelta);
     final isError = (formState == AppFormState.httpError || formState == AppFormState.exception || formState == AppFormState.resultFailed);
 
     fields.add(Padding(
@@ -78,7 +83,7 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
 
     InputDecoration clubDecoration = InputDecoration(
         labelText: "ClubName".tr(),
-        labelStyle: textStyleBodyLarge,
+        labelStyle: labelStyle,
         prefixIcon : Icon(
           clubIcon,
           size: iconSize,
@@ -98,7 +103,7 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
         controller: _clubNameInputController,
         focusNode: _focusClubName,
         readOnly: isReadOnly,
-        style: textStyleTitleLarge,
+        style: inputStyle,
         decoration: clubDecoration,
         onChanged: (value) => _validateClubName(value),
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -113,7 +118,7 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
           return TextFormField(
             controller: _clubPasswordInputController,
             focusNode: _focusClubPassword,
-            style: textStyleTitleLarge,
+            style: inputStyle,
             obscureText: ref.watch(_isClubPasswordHiddenProvider),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             inputFormatters: [
@@ -122,9 +127,9 @@ class JoinClubWidget extends ConsumerState<JoinClub> {
             readOnly: isReadOnly,
             decoration: InputDecoration(
                 labelText: "ClubPassword".tr(),
-                labelStyle: textStyleBodyLarge,
+                labelStyle: labelStyle,
                 hintText: "Optional".tr(),
-                hintStyle: textStyleBodyMedium,
+                hintStyle: hintStyle,
                 prefixIcon: Icon(
                   passwordIcon,
                   size: iconSize,

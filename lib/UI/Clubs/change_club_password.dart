@@ -15,14 +15,15 @@ import '../Elements/MainSidePanel/api_error_messages.dart';
 import '../Elements/app_process_indicator.dart';
 import '../Elements/basis_form.dart';
 import '../Elements/password_change_fields.dart';
-import '../Themes/app_themes.dart';
+import 'club_ui.dart';
 
 const int clubPasswordMaxLength = 100;
 
 class ChangeClubPassword extends ConsumerStatefulWidget {
-  const ChangeClubPassword({required this.clubId, super.key});
+  const ChangeClubPassword({required this.clubId, required this.clubName, super.key});
 
   final String clubId;
+  final String clubName;
 
   @override
   ConsumerState<ChangeClubPassword> createState() => _ChangeClubPasswordState();
@@ -52,13 +53,12 @@ class _ChangeClubPasswordState extends ConsumerState<ChangeClubPassword> {
     final fontSizeDelta = ref.watch(deltaFontSizeProvider);
     final isProcessing = formState == AppFormState.processing;
     final isError = formState == AppFormState.httpError || formState == AppFormState.exception || formState == AppFormState.resultFailed;
-    final textHeadlineSmall = Theme.of(context).textTheme.headlineSmall!.apply(fontSizeDelta: fontSizeDelta, color: Colors.white);
+    final styles = ClubStyles.of(context, fontSizeDelta);
 
     final fields = <Widget>[
       Padding(
         padding: const EdgeInsets.all(10),
-        child: Text("ChangeClubPassword".tr(),
-            textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)),
+        child: Text("ChangeClubPassword".tr(), textAlign: TextAlign.center, style: styles.cardTitle),
       ),
       PasswordChangeFields(
         currentController: _currentController,
@@ -73,7 +73,10 @@ class _ChangeClubPasswordState extends ConsumerState<ChangeClubPassword> {
         enabled: !isProcessing,
         onValidityChanged: (valid) => ref.read(_isChangePossibleProvider.notifier).state = valid,
       ),
-      Padding(padding: const EdgeInsets.only(top: 5), child: Text("ClbPswEmpty".tr(), style: Theme.of(context).textTheme.bodySmall)),
+      Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Align(alignment: Alignment.centerLeft, child: Text("ClbPswEmpty".tr(), style: Theme.of(context).textTheme.bodyMedium?.apply(fontSizeDelta: fontSizeDelta))),
+      ),
       if (isError) ApiErrorMessages(callErrors: _callErrors, deltaFontSize: fontSizeDelta),
       Padding(
         padding: const EdgeInsets.only(top: 20),
@@ -82,22 +85,16 @@ class _ChangeClubPasswordState extends ConsumerState<ChangeClubPassword> {
             : SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    disabledBackgroundColor: primaryActionButtonDefDisabledColor,
-                    backgroundColor: Theme.of(context).brightness == Brightness.light ? primaryActionButtonDefEnabledColorLight : null,
-                  ),
+                  style: styles.primaryButton,
                   onPressed: ref.watch(_isChangePossibleProvider) ? _changePassword : null,
                   child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: FittedBox(fit: BoxFit.scaleDown, child: Text("ChangePassword".tr(), textAlign: TextAlign.center, style: textHeadlineSmall))),
+                      child: FittedBox(fit: BoxFit.scaleDown, child: Text("ChangePassword".tr(), textAlign: TextAlign.center, style: styles.buttonLabel))),
                 )),
       ),
     ];
 
-    return BasisForm(
-      formTitle: "Club".tr(),
-      form: Card(elevation: 3, child: Padding(padding: const EdgeInsets.all(15), child: Column(children: fields))),
-    );
+    return BasisForm(formTitle: widget.clubName, form: ClubCard(children: fields));
   }
 
   Future<void> _changePassword() async {

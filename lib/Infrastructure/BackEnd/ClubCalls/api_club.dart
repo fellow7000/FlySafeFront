@@ -10,6 +10,8 @@ import 'package:fs_front/Core/DTO/Club/get_clubs_response.dart';
 
 import '../../../Core/DTO/Club/change_club_password_request.dart';
 import '../../../Core/DTO/Club/change_club_password_response.dart';
+import '../../../Core/DTO/Club/change_club_type_request.dart';
+import '../../../Core/DTO/Club/change_club_type_response.dart';
 import '../../../Core/DTO/Club/club_details_response.dart';
 import '../../../Core/DTO/Club/delete_club_request.dart';
 import '../../../Core/DTO/Club/delete_club_response.dart';
@@ -174,6 +176,28 @@ class ApiClub implements IApiClub {
         return ChangeClubPasswordResponse.fromJson(callResponse.body);
       } catch (e) {
         debugPrint("api call ${IApiClub.changeClubPasswordHandler} triggered an exception during body encoding ${e.toString()}");
+        throw Exception("exception during body encoding ${e.toString()}");
+      }
+    } else {
+      throw Exception("API call finished with code ${callResponse.statusCode}");
+    }
+  }
+
+  //change the club type (public / non-listed)
+  @override
+  Future<ChangeClubTypeResponse> changeClubType({required ChangeClubTypeRequest changeClubTypeRequest}) async {
+    CallResponse callResponse = await BackEndCall(webHostUri: webHostUri)
+        .callAPI(callTypeAPI: CallTypeAPI.post, apiController: IApiClub.clubController, apiHandler: IApiClub.changeClubTypeHandler, body: changeClubTypeRequest, isAuthorised: true);
+
+    if (callResponse.statusCode == BackEndCall.unauthorizedCode) {
+      throw Unauthorised();
+    } else if (callResponse.statusCode == BackEndCall.forbiddenCode) {
+      throw Forbidden();
+    } else if (callResponse.statusCode == BackEndCall.okCode || callResponse.statusCode == BackEndCall.conflictCode) {
+      try {
+        return ChangeClubTypeResponse.fromJson(callResponse.body);
+      } catch (e) {
+        debugPrint("api call ${IApiClub.changeClubTypeHandler} triggered an exception during body encoding ${e.toString()}");
         throw Exception("exception during body encoding ${e.toString()}");
       }
     } else {

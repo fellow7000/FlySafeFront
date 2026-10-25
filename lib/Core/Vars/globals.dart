@@ -57,6 +57,7 @@ const IconData visibleIcon = Icons.visibility;
 const IconData notVisibleIcon = Icons.visibility_off;
 const IconData helpIcon = Icons.help;
 const IconData errorIcon = Icons.error;
+const IconData warningIcon = Icons.warning_amber_rounded;
 const IconData calenderIcon = Icons.calendar_month_outlined;
 const IconData addObjectIcon = Icons.add;
 const IconData joinClubIcon = Icons.input;

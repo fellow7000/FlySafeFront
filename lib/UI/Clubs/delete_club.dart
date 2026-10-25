@@ -13,7 +13,7 @@ import '../../Infrastructure/BackEnd/backend_call.dart';
 import '../Elements/MainSidePanel/api_error_messages.dart';
 import '../Elements/app_process_indicator.dart';
 import '../Elements/basis_form.dart';
-import '../Themes/app_themes.dart';
+import 'club_ui.dart';
 
 //Full-page confirmation for deleting a club: club name and own user password are required. Pops true after a successful call.
 class DeleteClub extends ConsumerStatefulWidget {
@@ -77,50 +77,45 @@ class _DeleteClubState extends ConsumerState<DeleteClub> {
   @override
   Widget build(BuildContext context) {
     final delta = ref.watch(deltaFontSizeProvider);
-    final iconSize = appIconBasisSize + delta;
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final red = isLight ? primaryWarningButtonEnabledColorLight : primaryWarningButtonEnabledColorDark;
-    final redDisabled = isLight ? primaryWarningButtonDisabledColorLight : primaryWarningButtonDisabledColorDark;
-    final fieldStyle = Theme.of(context).textTheme.titleLarge!.apply(fontSizeDelta: delta);
-    final labelStyle = Theme.of(context).textTheme.bodyLarge!.apply(fontSizeDelta: delta, color: red);
+    final styles = ClubStyles.of(context, delta);
+    final fieldStyle = styles.value;
     final enabled = !_isProcessing;
 
-    InputDecoration decoration(String label, IconData icon, {Widget? suffix}) => InputDecoration(
+    //Only the title, the warning icon and the warning sentence are red; fields and other text use the normal colours.
+    InputDecoration decoration(String label, IconData icon, {String? helper, Widget? suffix}) => InputDecoration(
           labelText: label,
-          labelStyle: labelStyle,
-          floatingLabelStyle: TextStyle(color: red),
-          prefixIcon: Icon(icon, size: iconSize, color: red),
+          helperText: helper,
+          helperMaxLines: 3,
+          prefixIcon: Icon(icon, size: styles.iconSize),
           suffixIcon: suffix,
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: red.withValues(alpha: 0.6))),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: red, width: 2)),
-          border: OutlineInputBorder(borderSide: BorderSide(color: red)),
+          border: const OutlineInputBorder(),
         );
 
     final fields = <Widget>[
       Padding(
         padding: const EdgeInsets.all(10),
-        child: Text("DeleteClub".tr(),
-            textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: delta, color: red)),
+        child: Text("DeleteClub".tr(), key: const Key("deleteClubTitle"), textAlign: TextAlign.center, style: styles.cardTitle.copyWith(color: styles.danger, fontWeight: FontWeight.bold)),
       ),
       Padding(
         padding: const EdgeInsets.all(5),
-        child: Icon(Icons.warning_amber_rounded, size: iconSize * 2, color: red),
+        child: Icon(warningIcon, size: styles.iconSize * 2, color: styles.danger),
       ),
       Padding(
         padding: const EdgeInsets.all(5),
-        child: Text("DeleteClubWarning".tr(args: [widget.clubName]), textAlign: TextAlign.center, style: textStyleTitleMedium.copyWith(color: red, fontWeight: FontWeight.bold)),
+        child: Text("DeleteClubWarning".tr(args: [widget.clubName]),
+            key: const Key("deleteClubWarning"), textAlign: TextAlign.center, style: styles.body.copyWith(color: styles.danger, fontWeight: FontWeight.bold)),
       ),
       Padding(
         padding: const EdgeInsets.all(5),
-        child: Text("DeleteClubConsequences".tr(), textAlign: TextAlign.center, style: textStyleTitleMedium.copyWith(color: red)),
+        child: Text("DeleteClubConsequences".tr(), key: const Key("deleteClubConsequences"), textAlign: TextAlign.center, style: styles.body),
       ),
       Padding(
         padding: const EdgeInsets.only(top: 15),
         child: TextField(
+          key: const Key("deleteClubNameField"),
           controller: _nameController,
           enabled: enabled,
           style: fieldStyle,
-          cursorColor: red,
           decoration: decoration("DeleteClubTypeName".tr(), clubIcon),
           onChanged: (_) => setState(() {}),
         ),
@@ -128,14 +123,15 @@ class _DeleteClubState extends ConsumerState<DeleteClub> {
       Padding(
         padding: const EdgeInsets.only(top: 15),
         child: TextField(
+          key: const Key("deleteClubPasswordField"),
           controller: _passwordController,
           enabled: enabled,
           style: fieldStyle,
-          cursorColor: red,
           obscureText: _isPasswordHidden,
           decoration: decoration("DeleteClubYourPassword".tr(), passwordIcon,
+              helper: "DeleteClubYourPasswordHint".tr(),
               suffix: IconButton(
-                icon: Icon(_isPasswordHidden ? notVisibleIcon : visibleIcon, size: iconSize, color: red),
+                icon: Icon(_isPasswordHidden ? notVisibleIcon : visibleIcon, size: styles.iconSize),
                 onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
               )),
           onChanged: (_) => setState(() {}),
@@ -149,20 +145,18 @@ class _DeleteClubState extends ConsumerState<DeleteClub> {
             : SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: red, disabledBackgroundColor: redDisabled),
+                  key: const Key("deleteClubButton"),
+                  style: styles.destructiveButton,
                   onPressed: _isInputComplete ? _delete : null,
                   child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text("DeleteClub".tr(), textAlign: TextAlign.center, style: textStyleHeadlineSmall.copyWith(color: _isInputComplete ? Colors.white : null)))),
+                          child: Text("DeleteClub".tr(), textAlign: TextAlign.center, style: styles.buttonLabel))),
                 )),
       ),
     ];
 
-    return BasisForm(
-      formTitle: "Club".tr(),
-      form: Card(elevation: 3, child: Padding(padding: const EdgeInsets.all(15), child: Column(children: fields))),
-    );
+    return BasisForm(formTitle: widget.clubName, form: ClubCard(children: fields));
   }
 }

@@ -4,6 +4,8 @@ import 'package:fs_front/Core/DTO/Club/club_details_request.dart';
 import '../../../Core/DTO/Club/add_club_response.dart';
 import '../../../Core/DTO/Club/change_club_password_request.dart';
 import '../../../Core/DTO/Club/change_club_password_response.dart';
+import '../../../Core/DTO/Club/change_club_type_request.dart';
+import '../../../Core/DTO/Club/change_club_type_response.dart';
 import '../../../Core/DTO/Club/delete_club_request.dart';
 import '../../../Core/DTO/Club/delete_club_response.dart';
 import '../../../Core/DTO/Club/leave_club_request.dart';
@@ -24,6 +26,7 @@ abstract class IApiClub extends ApiCall {
   static const String leaveClubHandler = "leaveclub";
   static const String deleteClubHandler = "deleteclub";
   static const String changeClubPasswordHandler = "changeclubpassword";
+  static const String changeClubTypeHandler = "changeclubtype";
 
   //get the list of public clubs
   Future<List<String>> getPublicClubs();
@@ -45,4 +48,7 @@ abstract class IApiClub extends ApiCall {
 
   //change the club password
   Future<ChangeClubPasswordResponse> changeClubPassword({required ChangeClubPasswordRequest changeClubPasswordRequest});
+
+  //change the club type (public / non-listed)
+  Future<ChangeClubTypeResponse> changeClubType({required ChangeClubTypeRequest changeClubTypeRequest});
 }

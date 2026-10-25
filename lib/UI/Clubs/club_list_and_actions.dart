@@ -14,14 +14,13 @@ import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
 import '../../Helpers/general_helper.dart';
 import '../Elements/basis_form.dart';
-import '../Themes/app_themes.dart';
 import 'club_details.dart';
+import 'club_ui.dart';
 import 'join_club.dart';
 
 ///Form to display the list of clubs where the user is a member, manager, owner etc plus several actions (create a new club, join a club)
 class ClubListAndActions extends ConsumerWidget {
 
-  static const double myTopPadding = 0;
   static const double divIntent = 10;
   final GetClubsRolesActionsResponse clubsRolesActionsResponse;
 
@@ -31,124 +30,59 @@ class ClubListAndActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final fontSizeDelta = ref.watch(deltaFontSizeProvider);
-    final iconSize = appIconBasisSize + fontSizeDelta;
+    final styles = ClubStyles.of(context, ref.watch(deltaFontSizeProvider));
 
     if (ref.watch(getUserProfileProvider).isRefreshing) {
-      return BasisForm(formTitle: "Clubs".tr(),form: AppProcessIndicator(message: "Loading".tr()));
+      return BasisForm(formTitle: "Clubs".tr(), form: AppProcessIndicator(message: "Loading".tr()));
     }
 
-    List<Widget> fields = <Widget>[];
+    const divider = Divider(indent: divIntent, endIndent: divIntent);
+    final fields = <Widget>[
+      Padding(
+        padding: const EdgeInsets.all(10),
+        child: Text("YourClubs".tr(), textAlign: TextAlign.center, style: styles.cardTitle),
+      ),
+    ];
 
-    fields.add(Padding(
-      padding: const EdgeInsets.all(10),
-      child: Text("ClubsManager".tr(),
-          textAlign: TextAlign.center, style: textStyleHeadlineSmall),
-    ));
+    final clubs = clubsRolesActionsResponse.clubAndRoleDTOList;
+    if (clubs.isEmpty) {
+      fields.add(Padding(padding: const EdgeInsets.all(10), child: Text("NoClubsYet".tr(), textAlign: TextAlign.center, style: styles.body)));
+    }
 
-    fields.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: DataTable(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            columns: [
-              DataColumn(label: Text('Club'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold),)),
-              DataColumn(label: Text('Role'.tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
-              //DataColumn(label: Text('', style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
-            ],
-            rows: clubsRolesActionsResponse.clubAndRoleDTOList.asMap().entries.map((entry) {
-              final index = entry.key;
-              final clubAndRoleDTO = entry.value;
-              return DataRow(
-                cells: [
-                  DataCell(Text(clubAndRoleDTO.clubName, style: textStyleTitleMedium)),
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: clubAndRoleDTO.roles.map((roleTuple) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(roleTuple.item2.tr(), style: textStyleTitleMedium),
-                            //IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubAndRoleDTO.clubID,))), icon: Icon(chevronExpand, size: iconSize))
-                            IconButton(onPressed: () => _showClubDetails(clubId: clubAndRoleDTO.clubID, ref: ref, context: context), icon: Icon(chevronExpand, size: iconSize))
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  //DataCell(IconButton(icon: Icon(chevronExpand, size: iconSize), onPressed: null,)),
-                ],
-                color: index.isOdd? null : WidgetStateProperty.all<Color>(evenRowColor),
-              );
-            }).toList(),
-          ),
-        )
-    );
+    for (final club in clubs) {
+      if (club != clubs.first) fields.add(divider);
+      fields.add(ListTile(
+        leading: Icon(clubIcon, size: styles.iconSize),
+        title: Text(club.clubName, style: styles.value),
+        subtitle: club.roles.isEmpty ? null : ClubRolesText(roleNames: club.roles.map((r) => r.item2).toList(), style: styles.label),
+        trailing: Icon(chevronExpand, size: styles.iconSize),
+        onTap: () => _showClubDetails(clubId: club.clubID, ref: ref, context: context),
+      ));
+    }
 
     //Add Club
     if (IdentityHelper.isActionAllowed(appAction: AppAction.createClub, allowedActions: clubsRolesActionsResponse.allowedActions)) {
-      fields.add(const Divider(
-        indent: divIntent,
-        endIndent: divIntent,
-      ));
-
-      fields.add(Padding(
-        padding: const EdgeInsets.only(top: myTopPadding),
-        child: ListTile(
-          leading: Icon(addObjectIcon, size: iconSize),
-          title: Align(
-              alignment: Alignment.centerLeft,
-              child: FittedBox(fit: BoxFit.scaleDown, child: Text("AddClub".tr(), style: textStyleTitleLarge,))),
-          trailing: Icon(chevronExpand, size: iconSize),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddClub())),
-        ),
+      fields.add(divider);
+      fields.add(ListTile(
+        leading: Icon(addObjectIcon, size: styles.iconSize),
+        title: Text("AddClub".tr(), style: styles.value),
+        trailing: Icon(chevronExpand, size: styles.iconSize),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddClub())),
       ));
     }
 
     //Join Club
     if (IdentityHelper.isActionAllowed(appAction: AppAction.joinClub, allowedActions: clubsRolesActionsResponse.allowedActions)) {
-      fields.add(const Divider(
-        indent: divIntent,
-        endIndent: divIntent,
-      ));
-
-      fields.add(Padding(
-        padding: const EdgeInsets.only(top: myTopPadding),
-        child: ListTile(
-          leading: Icon(joinClubIcon, size: iconSize),
-          title: Align(
-              alignment: Alignment.centerLeft,
-              child: FittedBox(fit: BoxFit.scaleDown, child: Text("JoinClub".tr(), style: textStyleTitleLarge,))),
-          trailing: Icon(chevronExpand, size: iconSize),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinClub())),
-        ),
+      fields.add(divider);
+      fields.add(ListTile(
+        leading: Icon(joinClubIcon, size: styles.iconSize),
+        title: Text("JoinClub".tr(), style: styles.value),
+        trailing: Icon(chevronExpand, size: styles.iconSize),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinClub())),
       ));
     }
 
-    Widget clubsManagerWidget = Column(
-      children: [
-        Card(
-          elevation: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(formPadding),
-            child: Column(children: fields), //Sign-in Form
-          ),
-        ),
-        const Padding(padding: EdgeInsets.only(top: formPadding)),
-      ],
-    );
-
-    return Column(
-      children: [
-        clubsManagerWidget,
-        const Padding(padding: EdgeInsets.only(top: 15)),
-      ],
-    );
-
+    return ClubCard(children: fields);
   }
 
   void _showClubDetails({required String clubId, required WidgetRef ref, required BuildContext context}) {
@@ -158,7 +92,7 @@ class ClubListAndActions extends ConsumerWidget {
       AppAction.deleteClub,
       AppAction.changeClubPassword,
       AppAction.getClubMembers,
-      AppAction.leaveClub, //2024-03-04 no club leave in the version 4.0, so this is just a placeholder.
+      AppAction.leaveClub,
       AppAction.handoverClub //2023-07-17 no club hand-over in the version 4.0, so this is just a placeholder.
     ])); 
     Navigator.push(context, MaterialPageRoute(builder: (context) => ClubDetails(clubId: clubId)));

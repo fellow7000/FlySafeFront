@@ -14,131 +14,108 @@ import '../Elements/app_process_indicator.dart';
 import '../Elements/basis_form.dart';
 import '../../Helpers/app_helper.dart';
 import 'change_club_password.dart';
-import '../Themes/app_themes.dart';
 import 'club_action_dialogs.dart';
+import 'club_ui.dart';
 import 'delete_club.dart';
 
 class ClubDetails extends ConsumerWidget {
   const ClubDetails({required this.clubId, super.key});
 
   final String clubId;
-  final double _myElevation = 3;
   static const double _divIndent = 10;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final fontSizeDelta = ref.watch(deltaFontSizeProvider);
-    List<Widget> fields = <Widget>[];
-
-    Widget clubDetailsWidget;
+    final styles = ClubStyles.of(context, ref.watch(deltaFontSizeProvider));
 
     if (ref.watch(getUserProfileProvider).isRefreshing) {
       return BasisForm(formTitle: "Clubs".tr(), form: AppProcessIndicator(message: "Loading".tr()));
     }
 
     //clubDetailsRequestProvider is updated in the form Club_list_and_actions
-
-    clubDetailsWidget = ref.watch(clubDetailProvider).when(
+    final clubDetailsWidget = ref.watch(clubDetailProvider).when(
         loading: () => AppProcessIndicator(message: "Loading".tr()),
         data: (data) {
           final club = data.club;
 
           //if the user may not get the club details, show a message and stop
           if (club == null || !IdentityHelper.isActionAllowed(appAction: AppAction.readClubBaseInfo, allowedActions: data.allowedActions)) {
-            fields.add(Text("NoAccessToClub".tr()));
-          } else {
-            final iconSize = appIconBasisSize + fontSizeDelta;
-            final isLight = Theme.of(context).brightness == Brightness.light;
-            final warningColor = isLight ? primaryWarningButtonEnabledColorLight : primaryWarningButtonEnabledColorDark;
-            const divider = Divider(indent: _divIndent, endIndent: _divIndent);
-
-            fields.add(Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(club.clubName, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: fontSizeDelta)),
-            ));
-
-            //Club name
-            fields.add(ListTile(
-              leading: Icon(clubIcon, size: iconSize, color: isLight ? validColorLight : validColorDark),
-              title: Text("ClubName".tr(), style: textStyleTitleMedium),
-              subtitle: Text(club.clubName, style: textStyleTitleLarge),
-            ));
-            fields.add(divider);
-
-            //Club type
-            fields.add(ListTile(
-              leading: Icon(club.clubType == ClubType.publicClub ? visibleIcon : notVisibleIcon, size: iconSize),
-              title: Text("ClubType".tr(), style: textStyleTitleMedium),
-              subtitle: Text(club.clubType == ClubType.publicClub ? "ClubTypePublic".tr() : "ClubTypePrivate".tr(), style: textStyleTitleLarge),
-            ));
-            fields.add(divider);
-
-            //Own roles; shown only if the club list is already loaded
-            final roles = ref.watch(getClubsRolesActionsProvider).value?.clubAndRoleDTOList.where((c) => c.clubID == club.clubID).expand((c) => c.roles).toList();
-            if (roles != null && roles.isNotEmpty) {
-              fields.add(ListTile(
-                leading: Icon(userIcon, size: iconSize),
-                title: Text("Role".tr(), style: textStyleTitleMedium),
-                subtitle: Text(roles.map((r) => r.item2.tr()).join(", "), style: textStyleTitleLarge),
-              ));
-              fields.add(divider);
-            }
-
-            //Change Club Password; member management (AppAction.getClubMembers) is not shown until it is implemented
-            if (IdentityHelper.isActionAllowed(appAction: AppAction.changeClubPassword, allowedActions: data.allowedActions)) {
-              fields.add(ListTile(
-                leading: Icon(passwordIcon, size: iconSize),
-                title: Text("ChangeClubPassword".tr(), style: textStyleTitleLarge),
-                trailing: Icon(chevronExpand, size: iconSize),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeClubPassword(clubId: clubId))),
-              ));
-              fields.add(divider);
-            }
-
-            final canLeave = IdentityHelper.isActionAllowed(appAction: AppAction.leaveClub, allowedActions: data.allowedActions);
-            final canDelete = IdentityHelper.isActionAllowed(appAction: AppAction.deleteClub, allowedActions: data.allowedActions);
-
-            //Danger section
-            if (canLeave || canDelete) {
-              fields.add(Padding(
-                padding: const EdgeInsets.only(top: 15, bottom: 5),
-                child: Text("DangerZone".tr(), style: textStyleTitleMedium.copyWith(color: warningColor, fontWeight: FontWeight.bold)),
-              ));
-              fields.add(Divider(indent: _divIndent, endIndent: _divIndent, color: warningColor));
-            }
-
-            if (canLeave) {
-              fields.add(ListTile(
-                leading: Icon(logOutIcon, size: iconSize, color: warningColor),
-                title: Text("LeaveClub".tr(), style: textStyleTitleLarge.copyWith(color: warningColor)),
-                trailing: Icon(chevronExpand, size: iconSize),
-                onTap: () => _leaveClub(context, ref, club.clubName, canDelete),
-              ));
-              if (canDelete) fields.add(divider);
-            }
-
-            if (canDelete) {
-              fields.add(ListTile(
-                leading: Icon(clearTextIcon, size: iconSize, color: warningColor),
-                title: Text("DeleteClub".tr(), style: textStyleTitleLarge.copyWith(color: warningColor)),
-                trailing: Icon(chevronExpand, size: iconSize),
-                onTap: () => _deleteClub(context, ref, club.clubName),
-              ));
-            }
+            return ClubCard(children: [Padding(padding: const EdgeInsets.all(10), child: Text("NoAccessToClub".tr(), style: styles.body))]);
           }
 
-          return Column(
-            children: [
-              Card(
-                elevation: _myElevation,
-                child: Padding(
-                  padding: const EdgeInsets.all(formPadding),
-                  child: Column(children: fields), //Sign-in Form
-                ),
-              ),
-              const Padding(padding: EdgeInsets.only(top: formPadding)),
-            ],
-          );
+          bool allowed(AppAction action) => IdentityHelper.isActionAllowed(appAction: action, allowedActions: data.allowedActions);
+          const divider = Divider(indent: _divIndent, endIndent: _divIndent);
+          final canEditType = allowed(AppAction.editClubBaseInfo);
+          final canLeave = allowed(AppAction.leaveClub);
+          final canDelete = allowed(AppAction.deleteClub);
+
+          final fields = <Widget>[
+            //Card title: the club itself; the name is not repeated as a row
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text(club.clubName, textAlign: TextAlign.center, style: styles.cardTitle),
+            ),
+
+            //Club type: editable for the Owner (EditClubBaseInfo), otherwise an info row
+            ListTile(
+              key: const Key("clubTypeRow"),
+              leading: Icon(club.clubType == ClubType.publicClub ? visibleIcon : notVisibleIcon, size: styles.iconSize),
+              title: Text("ClubType".tr(), style: styles.label),
+              subtitle: Text(clubTypeLabel(club.clubType), style: styles.value),
+              trailing: canEditType ? Icon(chevronExpand, size: styles.iconSize) : null,
+              onTap: canEditType ? () => _changeClubType(context, ref, club.clubType) : null,
+            ),
+          ];
+
+          //Own roles, one per line; shown only if the club list is already loaded
+          final roles = ref.watch(getClubsRolesActionsProvider).value?.clubAndRoleDTOList.where((c) => c.clubID == club.clubID).expand((c) => c.roles).map((r) => r.item2).toList();
+          if (roles != null && roles.isNotEmpty) {
+            fields.add(divider);
+            fields.add(ListTile(
+              key: const Key("clubRolesRow"),
+              leading: Icon(userIcon, size: styles.iconSize),
+              title: Text(roles.length > 1 ? "Roles".tr() : "Role".tr(), style: styles.label),
+              subtitle: ClubRolesText(roleNames: roles, style: styles.value),
+            ));
+          }
+
+          //Change Club Password; member management (AppAction.getClubMembers) is not shown until it is implemented
+          if (allowed(AppAction.changeClubPassword)) {
+            fields.add(divider);
+            fields.add(ListTile(
+              leading: Icon(passwordIcon, size: styles.iconSize),
+              title: Text("ChangeClubPassword".tr(), style: styles.value),
+              trailing: Icon(chevronExpand, size: styles.iconSize),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeClubPassword(clubId: clubId, clubName: club.clubName))),
+            ));
+          }
+
+          //Destructive actions at the bottom, set apart by space; only the leading icon is red
+          if (canLeave || canDelete) {
+            fields.add(const SizedBox(height: 20));
+            fields.add(divider);
+          }
+
+          if (canLeave) {
+            fields.add(ListTile(
+              leading: Icon(logOutIcon, size: styles.iconSize, color: styles.danger),
+              title: Text("LeaveClub".tr(), style: styles.value),
+              trailing: Icon(chevronExpand, size: styles.iconSize),
+              onTap: () => _leaveClub(context, ref, club.clubName, canDelete),
+            ));
+            if (canDelete) fields.add(divider);
+          }
+
+          if (canDelete) {
+            fields.add(ListTile(
+              leading: Icon(clearTextIcon, size: styles.iconSize, color: styles.danger),
+              title: Text("DeleteClub".tr(), style: styles.value),
+              trailing: Icon(chevronExpand, size: styles.iconSize),
+              onTap: () => _deleteClub(context, ref, club.clubName),
+            ));
+          }
+
+          return ClubCard(children: fields);
         },
         error: (err, stack) => ApiErrorTileRetry(
               err: err,
@@ -149,7 +126,16 @@ class ClubDetails extends ConsumerWidget {
               retryCallBack: () => reloadClubDetails(ref),
             ));
 
-    return BasisForm(formTitle: "Club".tr(), form: clubDetailsWidget);
+    return BasisForm(formTitle: "Clubs".tr(), form: clubDetailsWidget);
+  }
+
+  Future<void> _changeClubType(BuildContext context, WidgetRef ref, ClubType currentType) async {
+    final changed = await showDialog<bool>(
+        context: context, barrierDismissible: false, builder: (_) => ChangeClubTypeDialog(clubId: clubId, currentType: currentType));
+    if (changed != true || !context.mounted) return;
+    AppHelper.showSnack(context: context, message: "ClubTypeChanged".tr());
+    ref.invalidate(clubDetailProvider);
+    ref.invalidate(getClubsRolesActionsProvider);
   }
 
   Future<void> _leaveClub(BuildContext context, WidgetRef ref, String clubName, bool canDelete) async {
