@@ -81,6 +81,9 @@ class _LeaveClubDialogState extends ConsumerState<LeaveClubDialog> {
 
 //Confirmation dialog for deleting a club: club name and own user password are required. Pops true after a successful call.
 class DeleteClubDialog extends ConsumerStatefulWidget {
+  //the typed name is compared trimmed and case-insensitive
+  static bool isClubNameConfirmed(String typed, String clubName) => typed.trim().toLowerCase() == clubName.trim().toLowerCase();
+
   const DeleteClubDialog({required this.clubId, required this.clubName, super.key});
 
   final String clubId;
@@ -104,7 +107,7 @@ class _DeleteClubDialogState extends ConsumerState<DeleteClubDialog> {
     super.dispose();
   }
 
-  bool get _isInputComplete => _nameController.text == widget.clubName && _passwordController.text.isNotEmpty;
+  bool get _isInputComplete => DeleteClubDialog.isClubNameConfirmed(_nameController.text, widget.clubName) && _passwordController.text.isNotEmpty;
 
   Future<void> _delete() async {
     setState(() {
@@ -113,7 +116,7 @@ class _DeleteClubDialogState extends ConsumerState<DeleteClubDialog> {
     });
 
     ref.read(deleteClubRequestProvider.notifier).state =
-        DeleteClubRequest(clubId: widget.clubId, clubNameConfirmation: _nameController.text, userPassword: _passwordController.text);
+        DeleteClubRequest(clubId: widget.clubId, clubNameConfirmation: _nameController.text.trim(), userPassword: _passwordController.text);
 
     try {
       final DeleteClubResponse response = await ref.read(deleteClubProvider.future);

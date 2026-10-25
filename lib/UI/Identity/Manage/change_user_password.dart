@@ -96,7 +96,7 @@ class _ChangeUserPasswordState extends ConsumerState<ChangeUserPassword> {
       newLabel: "NewPassword".tr(),
       confirmLabel: "ConfirmPassword".tr(),
       minLength: minUserPasswordLength,
-      allowEmptyCurrent: true, //the current password is not checked on the client, the back end does it
+      allowEmptyCurrent: false,
       enabled: !isProcessing,
       onValidityChanged: (valid) => ref.read(_isChangePossibleProvider.notifier).state = valid,
     ));
