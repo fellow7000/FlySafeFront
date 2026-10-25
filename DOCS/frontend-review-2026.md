@@ -5,7 +5,8 @@ compared with `FlySafeWeb/Docs/architecture/architecture-principles.md`, `archit
 Roles: tech lead (architecture), frontend developer (code), QA (tests). Authentication / token / credential storage is
 **out of scope** here: the current implementation is historical and will be redesigned in a dedicated session (see §5).
 
-Branch with low-hanging fixes: `copilot/frontend-review-quick-fixes` (local, not pushed).
+Branch with low-hanging fixes: `copilot/frontend-review-quick-fixes`. Club management continues on `copilot/club-manage`
+(status 2026-10-25: FlySafeWeb `Docs/Backend/ClubImplementationStatus.md`; design rules: `DOCS/ux-design-system.md`).
 
 ## 1. Summary
 
@@ -31,7 +32,7 @@ Severity: **H** high, **M** medium, **L** low. Status: **Fixed** = fixed on the 
 | #  | Sev | Location | Finding | Status / recommendation |
 |----|-----|----------|---------|-------------------------|
 | 1  | H | `lib/UI/Clubs/club_details.dart` | Access check was inverted (club name/actions shown when `readClubBaseInfo` was *not* allowed); a null `club` crashed. | **Fixed**: shows `NoAccessToClub` when club is null or action not allowed. |
-| 2  | H | `lib/UI/Clubs/club_details.dart` | Members / Delete buttons called methods that `throw UnimplementedError` → crash on tap. | **Fixed**: buttons disabled (`onPressed: null`) until implemented. |
+| 2  | H | `lib/UI/Clubs/club_details.dart` | Members / Delete buttons called methods that `throw UnimplementedError` → crash on tap. | **Fixed**: buttons disabled (`onPressed: null`) until implemented. **Implemented** on `copilot/club-manage` (2026-10-25). |
 | 3  | M | `lib/Infrastructure/BackEnd/ClubCalls/api_club.dart` | Backend returns 403 with `Club == null` for missing ReadClubBaseInfo; client treated it as a generic exception. | **Fixed**: 403 → `Forbidden()` (rendered as `AccessDenied` by `ApiErrorTileRetry`). 404 still a generic exception – Open (L). |
 | 4  | H | `lib/UI/Clubs/add_club.dart` ↔ FlySafeWeb `CheckClubNameFree` | Club-name validation contract is broken across repos: client parses a bare `bool` from `checkvaluesocket`, no time-stamp echo, so stale answers can overwrite newer input; REST `checkclubnamefree` returns a bare bool through `ReturnCode`. | **Fixed** (FlySafeWeb `copilot/club-name-check` + client): WebSocket removed; Add Club and Sign up use the debounced REST `checkclubnamefree` through the shared `TextFormFieldOnlineValidate`, which drops stale and post-dispose answers and maps HTTP 429 to `TooManyRequests`. Server returns `CheckValueValidResponse` with the time stamp, also rejects other users' names, and has a unique index on the club name. |
 | 5  | M | `lib/UI/Clubs/add_club.dart` | WebSocket lifecycle: `late` channel disposed before init → `LateInitializationError`; "connected" flag set before connection; no reconnect wait; stale channel callbacks after dispose. | **Resolved** with #4: the WebSocket client and the `web_socket_channel` dependency were removed. |
@@ -144,7 +145,7 @@ Migration order: (1) add `riverpod_lint`; (2) move providers out of DTOs/widgets
 - Access token in a mutable global (`globals.dart:37`); no secure storage, no refresh-token flow.
 - Sign-in side effects inside `build()` (`main_screen.dart:83-85`).
 - Login submit flow without error handling for some paths (`login_user_or_club.dart`).
-- Leave / hand-over club placeholders (hand-over is out of app scope – FSAdmin only).
+- Hand-over club is out of app scope (FSAdmin only). Leave, delete, club password, club type and members are implemented on `copilot/club-manage` (2026-10-25).
 
 ## 6. Phased plan
 
