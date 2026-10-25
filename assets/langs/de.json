@@ -567,7 +567,7 @@
   "LastOwnerCannotLeave" : "Sie sind der letzte Eigentümer dieses Clubs und können ihn nicht verlassen.",
   "LastOwnerCannotLeaveHint" : "Löschen Sie stattdessen den Club, wenn er nicht mehr benötigt wird.",
   "ClubLeft" : "Sie haben den Club verlassen",
-  "DeleteClubWarning" : "Der Club \"{}\" wird gelöscht. Dies kann nicht rückgängig gemacht werden.\n\nGeben Sie zur Bestätigung den Clubnamen und Ihr eigenes Benutzerpasswort ein.",
+  "DeleteClubWarning" : "ACHTUNG! Der Club \"{}\" wird gelöscht.",
   "DeleteClubTypeName" : "Clubname",
   "DeleteClubYourPassword" : "Ihr Benutzerpasswort",
   "ClubDeleted" : "Der Club wurde gelöscht",
@@ -577,5 +577,10 @@
   "CurrentClubPassword" : "Aktuelles Clubpasswort",
   "NewClubPassword" : "Neues Clubpasswort",
   "ConfirmNewClubPassword" : "Bestätigung des neuen Clubpassworts",
-  "ClubPasswordChanged" : "Das Clubpasswort wurde geändert"
+  "ClubPasswordChanged" : "Das Clubpasswort wurde geändert",
+  "DeleteClubConsequences" : "Der Club und seine Daten sind für keines seiner Mitglieder mehr zugänglich. Der Clubname bleibt reserviert und kann nicht erneut verwendet werden.\n\nDies kann nicht rückgängig gemacht werden. Geben Sie zur Bestätigung den Clubnamen und Ihr eigenes Benutzerpasswort ein.",
+  "ClubType" : "Clubtyp",
+  "ClubTypePublic" : "Öffentlich (gelistet)",
+  "ClubTypePrivate" : "Privat (nicht gelistet)",
+  "DangerZone" : "Gefahrenbereich"
 }

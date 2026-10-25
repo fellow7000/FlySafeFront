@@ -12,6 +12,7 @@ import '../../Helpers/app_helper.dart';
 import '../../Helpers/club_error_helper.dart';
 import '../../Infrastructure/BackEnd/backend_call.dart';
 import '../Elements/MainSidePanel/api_error_messages.dart';
+import '../Elements/app_process_indicator.dart';
 import '../Elements/basis_form.dart';
 import '../Elements/password_change_fields.dart';
 import '../Themes/app_themes.dart';
@@ -77,7 +78,7 @@ class _ChangeClubPasswordState extends ConsumerState<ChangeClubPassword> {
       Padding(
         padding: const EdgeInsets.only(top: 20),
         child: isProcessing
-            ? const CircularProgressIndicator()
+            ? AppProcessIndicator(message: "Processing".tr())
             : SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -94,7 +95,7 @@ class _ChangeClubPasswordState extends ConsumerState<ChangeClubPassword> {
     ];
 
     return BasisForm(
-      formTitle: "ChangeClubPassword".tr(),
+      formTitle: "Club".tr(),
       form: Card(elevation: 3, child: Padding(padding: const EdgeInsets.all(15), child: Column(children: fields))),
     );
   }

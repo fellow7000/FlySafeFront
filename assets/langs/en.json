@@ -567,7 +567,7 @@
   "LastOwnerCannotLeave" : "You are the last owner of this club and cannot leave it.",
   "LastOwnerCannotLeaveHint" : "Delete the club instead if it is no longer needed.",
   "ClubLeft" : "You have left the club",
-  "DeleteClubWarning" : "The club \"{}\" will be deleted. This cannot be undone.\n\nTo confirm, type the club name and enter your own user password.",
+  "DeleteClubWarning" : "WARNING! The club \"{}\" will be deleted.",
   "DeleteClubTypeName" : "Club name",
   "DeleteClubYourPassword" : "Your user password",
   "ClubDeleted" : "The club has been deleted",
@@ -577,5 +577,10 @@
   "CurrentClubPassword" : "Current Club Password",
   "NewClubPassword" : "New Club Password",
   "ConfirmNewClubPassword" : "New Club Password Confirmation",
-  "ClubPasswordChanged" : "Club password has been changed"
+  "ClubPasswordChanged" : "Club password has been changed",
+  "DeleteClubConsequences" : "The club and its data will no longer be accessible for any of its members. The club name stays reserved and cannot be used again.\n\nThis cannot be undone. To confirm, type the club name and enter your own user password.",
+  "ClubType" : "Club Type",
+  "ClubTypePublic" : "Public (listed)",
+  "ClubTypePrivate" : "Private (not listed)",
+  "DangerZone" : "Danger zone"
 }

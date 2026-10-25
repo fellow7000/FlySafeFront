@@ -3,22 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../Core/DTO/Base/call_error.dart';
-import '../../Core/DTO/Club/delete_club_request.dart';
-import '../../Core/DTO/Club/delete_club_response.dart';
 import '../../Core/DTO/Club/leave_club_request.dart';
 import '../../Core/DTO/Club/leave_club_response.dart';
 import '../../Core/Vars/enums.dart';
+import '../../Core/Vars/globals.dart';
 import '../../Core/Vars/providers.dart';
 import '../../Helpers/club_error_helper.dart';
 import '../../Infrastructure/BackEnd/backend_call.dart';
 import '../Elements/MainSidePanel/api_error_messages.dart';
+import '../Themes/app_themes.dart';
 
-//Confirmation dialog for leaving a club. Pops true after a successful call.
+enum LeaveClubResult { cancelled, left, deleteInstead }
+
+//Confirmation dialog for leaving a club. Pops a LeaveClubResult; left means the call succeeded.
 class LeaveClubDialog extends ConsumerStatefulWidget {
-  const LeaveClubDialog({required this.clubId, required this.clubName, super.key});
+  const LeaveClubDialog({required this.clubId, required this.clubName, this.canDelete = false, super.key});
 
   final String clubId;
   final String clubName;
+  final bool canDelete;
 
   @override
   ConsumerState<LeaveClubDialog> createState() => _LeaveClubDialogState();
@@ -40,7 +43,7 @@ class _LeaveClubDialogState extends ConsumerState<LeaveClubDialog> {
       final response = await ref.read(leaveClubProvider.future);
       if (!mounted) return;
       if (response.resultCode == AppResultCode.ok) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(LeaveClubResult.left);
       } else {
         setState(() {
           _errors = ClubErrorHelper.localize(response.errors);
@@ -59,121 +62,40 @@ class _LeaveClubDialogState extends ConsumerState<LeaveClubDialog> {
   @override
   Widget build(BuildContext context) {
     final lastOwner = ClubErrorHelper.hasCode(_errors, ClubErrorCodes.lastOwnerCannotLeave);
+    final delta = ref.watch(deltaFontSizeProvider);
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final warningColor = isLight ? primaryWarningButtonEnabledColorLight : primaryWarningButtonEnabledColorDark;
+    final iconSize = appIconBasisSize + delta;
 
     return AlertDialog(
-      title: Text("LeaveClub".tr()),
+      icon: Icon(logOutIcon, size: iconSize + 8, color: warningColor),
+      title: Text("LeaveClub".tr(), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.apply(fontWeightDelta: 1, fontSizeDelta: delta)),
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text("LeaveClubConfirmation".tr(args: [widget.clubName])),
-          if (_errors.isNotEmpty) ApiErrorMessages(callErrors: _errors, deltaFontSize: ref.watch(deltaFontSizeProvider)),
-          if (lastOwner) Padding(padding: const EdgeInsets.only(top: 10), child: Text("LastOwnerCannotLeaveHint".tr())),
+          Text("LeaveClubConfirmation".tr(args: [widget.clubName]), style: textStyleTitleMedium.copyWith(color: warningColor)),
+          if (_errors.isNotEmpty) ApiErrorMessages(callErrors: _errors, deltaFontSize: delta),
+          if (lastOwner) Padding(padding: const EdgeInsets.only(top: 10), child: Text("LastOwnerCannotLeaveHint".tr(), style: textStyleTitleMedium.copyWith(fontWeight: FontWeight.bold))),
         ]),
       ),
+      actionsOverflowDirection: VerticalDirection.down,
       actions: [
-        TextButton(onPressed: _isProcessing ? null : () => Navigator.of(context).pop(false), child: Text("Cancel".tr())),
-        _isProcessing
-            ? const Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)))
-            : TextButton(onPressed: lastOwner ? null : _leave, child: Text("LeaveClub".tr())),
-      ],
-    );
-  }
-}
-
-//Confirmation dialog for deleting a club: club name and own user password are required. Pops true after a successful call.
-class DeleteClubDialog extends ConsumerStatefulWidget {
-  //the typed name is compared trimmed and case-insensitive
-  static bool isClubNameConfirmed(String typed, String clubName) => typed.trim().toLowerCase() == clubName.trim().toLowerCase();
-
-  const DeleteClubDialog({required this.clubId, required this.clubName, super.key});
-
-  final String clubId;
-  final String clubName;
-
-  @override
-  ConsumerState<DeleteClubDialog> createState() => _DeleteClubDialogState();
-}
-
-class _DeleteClubDialogState extends ConsumerState<DeleteClubDialog> {
-  final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isProcessing = false;
-  bool _isPasswordHidden = true;
-  List<CallError> _errors = [];
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  bool get _isInputComplete => DeleteClubDialog.isClubNameConfirmed(_nameController.text, widget.clubName) && _passwordController.text.isNotEmpty;
-
-  Future<void> _delete() async {
-    setState(() {
-      _isProcessing = true;
-      _errors = [];
-    });
-
-    ref.read(deleteClubRequestProvider.notifier).state =
-        DeleteClubRequest(clubId: widget.clubId, clubNameConfirmation: _nameController.text.trim(), userPassword: _passwordController.text);
-
-    try {
-      final DeleteClubResponse response = await ref.read(deleteClubProvider.future);
-      if (!mounted) return;
-      if (response.resultCode == AppResultCode.ok) {
-        Navigator.of(context).pop(true);
-      } else {
-        setState(() {
-          _errors = ClubErrorHelper.localize(response.errors);
-          _isProcessing = false;
-        });
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _errors = [BackEndCall.callExceptionError];
-        _isProcessing = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text("DeleteClub".tr()),
-      content: SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text("DeleteClubWarning".tr(args: [widget.clubName])),
-          TextField(
-            controller: _nameController,
-            enabled: !_isProcessing,
-            decoration: InputDecoration(labelText: "DeleteClubTypeName".tr()),
-            onChanged: (_) => setState(() {}),
+        TextButton(
+            onPressed: _isProcessing ? null : () => Navigator.of(context).pop(LeaveClubResult.cancelled),
+            child: Text("Cancel".tr(), style: textStyleTitleMedium)),
+        if (_isProcessing)
+          const Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)))
+        else if (lastOwner && widget.canDelete)
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: warningColor),
+            onPressed: () => Navigator.of(context).pop(LeaveClubResult.deleteInstead),
+            child: Text("DeleteClub".tr(), style: textStyleTitleMedium.copyWith(color: Colors.white)),
+          )
+        else
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: warningColor, disabledBackgroundColor: isLight ? primaryWarningButtonDisabledColorLight : primaryWarningButtonDisabledColorDark),
+            onPressed: lastOwner ? null : _leave,
+            child: Text("LeaveClub".tr(), style: textStyleTitleMedium.copyWith(color: Colors.white)),
           ),
-          TextField(
-            controller: _passwordController,
-            enabled: !_isProcessing,
-            obscureText: _isPasswordHidden,
-            decoration: InputDecoration(
-              labelText: "DeleteClubYourPassword".tr(),
-              suffixIcon: IconButton(
-                icon: Icon(_isPasswordHidden ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          if (_errors.isNotEmpty) ApiErrorMessages(callErrors: _errors, deltaFontSize: ref.watch(deltaFontSizeProvider)),
-        ]),
-      ),
-      actions: [
-        TextButton(onPressed: _isProcessing ? null : () => Navigator.of(context).pop(false), child: Text("Cancel".tr())),
-        _isProcessing
-            ? const Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)))
-            : TextButton(
-                onPressed: _isInputComplete ? _delete : null,
-                child: Text("DeleteClub".tr(), style: TextStyle(color: _isInputComplete ? Theme.of(context).colorScheme.error : null))),
       ],
     );
   }

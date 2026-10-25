@@ -8,7 +8,7 @@ import 'package:fs_front/Core/DTO/Club/delete_club_response.dart';
 import 'package:fs_front/Core/DTO/Club/leave_club_request.dart';
 import 'package:fs_front/Core/DTO/Club/leave_club_response.dart';
 import 'package:fs_front/Core/Vars/enums.dart';
-import 'package:fs_front/UI/Clubs/club_action_dialogs.dart';
+import 'package:fs_front/UI/Clubs/delete_club.dart';
 import 'package:fs_front/UI/Elements/password_change_fields.dart';
 
 void main() {
@@ -44,8 +44,8 @@ void main() {
   });
 
   test('delete confirmation ignores case and surrounding spaces', () {
-    expect(DeleteClubDialog.isClubNameConfirmed("  my club ", "My Club"), isTrue);
-    expect(DeleteClubDialog.isClubNameConfirmed("my clu", "My Club"), isFalse);
+    expect(DeleteClub.isClubNameConfirmed("  my club ", "My Club"), isTrue);
+    expect(DeleteClub.isClubNameConfirmed("my clu", "My Club"), isFalse);
   });
 
   group('PasswordChangeFields.isInputValid', () {
