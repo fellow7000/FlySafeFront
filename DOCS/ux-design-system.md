@@ -28,6 +28,8 @@ Use these as the visual baseline and screenshot them before any redesign:
 - Navigation row: `ListTile(leading: icon, title: text in textStyleTitleLarge, trailing: Icon(chevronExpand), onTap: push page)`.
 - Destructive navigation row (e.g. Delete account): same as a navigation row, **only the leading icon** in the warning colour; the title stays in the normal text colour.
 - Danger zone: destructive rows go last in the card, after a little extra space and a normal divider. No "Danger zone" header, no red divider, no red banner.
+- People list (e.g. club members, `lib/UI/Clubs/club_members.dart`): one card, title = the list name, one `ListTile` per person (leading `userIcon`, title = user name, subtitle = role). Mark the current user with a small "(You)" after the name in `bodyMedium`, not a chip or colour. Chevron/onTap only on rows the server lets you act on (`AllowedRoles` non-empty or `CanRemove`); other rows are plain. The "add" entry is a navigation row at the end of the list, shown only when the server allows it. Never show emails.
+- Item detail page reached from such a list (e.g. a member): card title = the item name, an editable info row for the attribute (role → radio dialog with one-line hints), then the destructive row last per "Danger zone".
 - Icons come from `lib/Core/Vars/globals.dart` (`userIcon`, `clubIcon`, `passwordIcon`, `clearTextIcon`, `chevronExpand`, `logOutIcon`, ...). Add new icon constants there instead of using `Icons.*` inline.
 - The identity row's leading icon (user/club name) is in `validColor*` (green); other icons use the default colour.
 
@@ -44,6 +46,8 @@ Use these as the visual baseline and screenshot them before any redesign:
 - Blue `primaryActionButtonDef*`: primary actions. Green `validColor*`: identity/valid states. Red `primaryWarningButton*` / `notValidColor*`: destructive actions and errors only.
 - Red text is limited to **one** warning sentence per destructive page (see Delete account) and validation errors. Explanatory text, field labels and borders stay in the default theme colours.
 - Destructive full page (user decision, Delete Club): red only for the page title (bold), the warning icon (`warningIcon`) and one bold sentence `Warning! The <object> "<name>" will be deleted.` Everything else (consequences, fields, labels, borders) is in the normal text colour. The button is red when enabled, grey when disabled.
+- Reversible removal (e.g. remove a member, who can be added again): confirmation dialog, no typed confirmation. Red only for the icon, the title and one warning sentence naming both objects; the consequence sentence and Cancel stay in the normal colour; confirm button red, labelled with the verb ("Remove"). See `RemoveMemberDialog` in `lib/UI/Clubs/club_member_dialogs.dart`.
+- Privacy-neutral results (e.g. add a member by name or email, where the server answers the same whether or not the user exists): show a neutral snackbar ("If a user with this name or email exists, they are now a member", 4 s), never "added" or "not found".
 - Red on dark surfaces: use `Colors.red.shade400` for red text/icons (the dark warning colour reads pink) and `Colors.red.shade700` for the button background.
 
 ## Typography and scaling
@@ -71,6 +75,8 @@ Use these as the visual baseline and screenshot them before any redesign:
 - Flutter web automation: click `flt-semantics-placeholder` to enable semantics, re-read the page after each navigation, retry clicks after a short wait.
 - Theme: switch via the theme toggle in the side menu (`lib/UI/Elements/MainSidePanel/theme_mode_swith.dart`). Font size: app settings.
 - Widths: narrow ≈375 px (drawer layout) and wide ≥1280 px (side panel layout).
+- Narrow layout: the sign-in / account entry is the icon at the right of the AppBar (≈ width−70, 28); the theme toggle is in the drawer (hamburger at 28, 28), close it with "Dismiss".
+- A second club role for verification: register a throwaway user (`api/user/register`), and afterwards delete its own club (`deleteclub`) and the account (`GET api/user/deleteuserprofile`).
 - Playwright on Flutter web: `fill()` does not reach Flutter inputs; click the `input`, wait ~500 ms, then `keyboard.type` (without the wait the first character is lost). Escape does not close dialogs; click Cancel.
 - Several test users own a club whose name equals the user name and which has an empty club password; an empty password logs in as that club (Club Profile). Always log in with the real user password.
 

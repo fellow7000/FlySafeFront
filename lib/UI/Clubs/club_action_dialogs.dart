@@ -17,8 +17,6 @@ import 'club_ui.dart';
 
 enum LeaveClubResult { cancelled, left, deleteInstead }
 
-const _dialogProgress = Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)));
-
 //Confirmation dialog for leaving a club. Pops a LeaveClubResult; left means the call succeeded.
 //The server does not offer Leave to the only Owner; LastOwnerCannotLeave is handled as a rare fallback.
 class LeaveClubDialog extends ConsumerStatefulWidget {
@@ -86,7 +84,7 @@ class _LeaveClubDialogState extends ConsumerState<LeaveClubDialog> {
             onPressed: _isProcessing ? null : () => Navigator.of(context).pop(LeaveClubResult.cancelled),
             child: Text(lastOwner ? "Close".tr() : "Cancel".tr(), style: styles.label)),
         if (_isProcessing)
-          _dialogProgress
+          clubDialogProgress
         else if (lastOwner && widget.canDelete)
           ElevatedButton(
             style: styles.destructiveButton,
@@ -184,7 +182,7 @@ class _ChangeClubTypeDialogState extends ConsumerState<ChangeClubTypeDialog> {
       actions: [
         TextButton(onPressed: _isProcessing ? null : () => Navigator.of(context).pop(false), child: Text("Cancel".tr(), style: styles.label)),
         if (_isProcessing)
-          _dialogProgress
+          clubDialogProgress
         else
           ElevatedButton(
             style: styles.primaryButton,

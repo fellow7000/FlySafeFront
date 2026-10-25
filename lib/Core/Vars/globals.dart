@@ -62,6 +62,10 @@ const IconData calenderIcon = Icons.calendar_month_outlined;
 const IconData addObjectIcon = Icons.add;
 const IconData joinClubIcon = Icons.input;
 const IconData commentIcon = Icons.edit_note;
+const IconData membersIcon = Icons.group;
+const IconData addMemberIcon = Icons.person_add;
+const IconData removeMemberIcon = Icons.person_remove;
+const IconData roleIcon = Icons.badge;
 
 //window size & margins
 late double windowWidth;

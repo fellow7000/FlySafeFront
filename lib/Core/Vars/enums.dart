@@ -133,6 +133,7 @@ enum AppAction
   removeManager,
   inviteMember,
   removeMember,
+  addMember,
   createChecklist,
   editChecklist,
   readChecklist,

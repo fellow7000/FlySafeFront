@@ -15,6 +15,7 @@ import '../Elements/basis_form.dart';
 import '../../Helpers/app_helper.dart';
 import 'change_club_password.dart';
 import 'club_action_dialogs.dart';
+import 'club_members.dart';
 import 'club_ui.dart';
 import 'delete_club.dart';
 
@@ -79,7 +80,19 @@ class ClubDetails extends ConsumerWidget {
             ));
           }
 
-          //Change Club Password; member management (AppAction.getClubMembers) is not shown until it is implemented
+          //Members: Owners, Managers and Root only (GetClubMembers)
+          if (allowed(AppAction.getClubMembers)) {
+            fields.add(divider);
+            fields.add(ListTile(
+              key: const Key("clubMembersRow"),
+              leading: Icon(membersIcon, size: styles.iconSize),
+              title: Text("Members".tr(), style: styles.value),
+              trailing: Icon(chevronExpand, size: styles.iconSize),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ClubMembers(clubId: clubId, clubName: club.clubName))),
+            ));
+          }
+
+          //Change Club Password
           if (allowed(AppAction.changeClubPassword)) {
             fields.add(divider);
             fields.add(ListTile(

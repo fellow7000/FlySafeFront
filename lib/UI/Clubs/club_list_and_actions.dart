@@ -92,6 +92,7 @@ class ClubListAndActions extends ConsumerWidget {
       AppAction.deleteClub,
       AppAction.changeClubPassword,
       AppAction.getClubMembers,
+      AppAction.addMember,
       AppAction.leaveClub,
       AppAction.handoverClub //2023-07-17 no club hand-over in the version 4.0, so this is just a placeholder.
     ])); 

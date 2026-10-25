@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../../Core/Vars/globals.dart';
 import '../Themes/app_themes.dart';
 
+///Small progress indicator that replaces the confirm button of a dialog while the call runs.
+const clubDialogProgress = Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)));
+
 ///Theme-aware styles for the club screens.
 ///The global textStyle* variables are initialised above MaterialApp and keep the light-theme text colour, so they are invisible in dark mode.
 class ClubStyles {

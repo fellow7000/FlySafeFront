@@ -19,7 +19,16 @@ import 'package:fs_front/Core/Vars/enums.dart';
 import 'package:fs_front/Core/Vars/globals.dart';
 import 'package:fs_front/Core/Vars/providers.dart';
 import 'package:fs_front/Mock/mock_back_end_club.dart';
+import 'package:fs_front/Core/DTO/Base/call_error.dart';
+import 'package:fs_front/Core/DTO/Club/add_club_member_request.dart';
+import 'package:fs_front/Core/DTO/Club/club_member_change_response.dart';
+import 'package:fs_front/Core/DTO/Club/club_member_dto.dart';
+import 'package:fs_front/Core/DTO/Club/get_club_members_request.dart';
+import 'package:fs_front/Core/DTO/Club/get_club_members_response.dart';
+import 'package:fs_front/Core/DTO/Club/remove_club_member_request.dart';
+import 'package:fs_front/Core/DTO/Club/set_club_member_role_request.dart';
 import 'package:fs_front/UI/Clubs/club_details.dart';
+import 'package:fs_front/UI/Clubs/club_members.dart';
 import 'package:fs_front/UI/Clubs/delete_club.dart';
 import 'package:fs_front/UI/Themes/app_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,6 +65,15 @@ class _FakeClubBackEnd extends FakeBackEndClub {
     final previous = type;
     type = changeClubTypeRequest.newClubType;
     return ChangeClubTypeResponse(resultCode: AppResultCode.ok, clubId: "c1", previousClubType: previous, newClubType: type, errors: const []);
+  }
+
+  String? refuseRoleChangeWith;
+
+  @override
+  Future<ClubMemberChangeResponse> setClubMemberRole({required SetClubMemberRoleRequest setClubMemberRoleRequest}) {
+    if (refuseRoleChangeWith == null) return super.setClubMemberRole(setClubMemberRoleRequest: setClubMemberRoleRequest);
+    return Future.value(ClubMemberChangeResponse(
+        resultCode: AppResultCode.conflict, errors: [CallError(code: refuseRoleChangeWith!, description: "server text")]));
   }
 }
 
@@ -223,6 +241,178 @@ void main() {
       expect(find.text("Club type has been changed"), findsOneWidget);
       expect(backEnd.detailsCalls, greaterThan(callsBefore));
       expect(find.text("Private (not listed)"), findsOneWidget);
+    });
+  });
+
+  group('club member DTOs', () {
+    test('requests use the PascalCase contract', () {
+      expect(GetClubMembersRequest(clubId: "c1").toJson(), {"ClubId": "c1"});
+      expect(AddClubMemberRequest(clubId: "c1", userNameOrEmail: "a@b.c").toJson(), {"ClubId": "c1", "UserNameOrEmail": "a@b.c"});
+      expect(SetClubMemberRoleRequest(clubId: "c1", userId: "u2", role: "Club_Manager").toJson(), {"ClubId": "c1", "UserId": "u2", "Role": "Club_Manager"});
+      expect(RemoveClubMemberRequest(clubId: "c1", userId: "u2").toJson(), {"ClubId": "c1", "UserId": "u2"});
+    });
+
+    test('member list parses without ResultCode; 409 bodies become conflicts', () {
+      final r = GetClubMembersResponse.fromJson({
+        "ClubId": "c1",
+        "CanAddMember": true,
+        "Members": [
+          {"UserId": "u1", "UserName": "me", "Role": "Club_Owner", "IsCurrentUser": true, "AllowedRoles": [], "CanRemove": false},
+          {"UserId": "u2", "UserName": "you", "Role": "Club_Member", "IsCurrentUser": false, "AllowedRoles": ["Club_Owner", "Club_Manager"], "CanRemove": true},
+        ]
+      });
+      expect(r.resultCode, AppResultCode.ok);
+      expect(r.canAddMember, isTrue);
+      expect(r.members.map((m) => m.userName), ["me", "you"]);
+      expect(r.members.first.isManageable, isFalse);
+      expect(r.members.last.allowedRoles, ["Club_Owner", "Club_Manager"]);
+      expect(r.members.last.isManageable, isTrue);
+
+      final c = ClubMemberChangeResponse.fromJson({
+        "Errors": [
+          {"Code": "MemberRankTooHigh", "Description": "x"}
+        ]
+      }, statusCode: 409);
+      expect(c.resultCode, AppResultCode.conflict);
+      expect(c.errors.single.code, "MemberRankTooHigh");
+    });
+  });
+
+  group('Club members', () {
+    List membersOverrides(_FakeClubBackEnd backEnd) => [backEndClub.overrideWithValue(backEnd)];
+    Finder memberRow(String id) => find.byKey(Key("member_$id"));
+
+    testWidgets('club details shows the Members row only with GetClubMembers', (tester) async {
+      for (final actions in [
+        ["ReadClubBaseInfo"],
+        ["ReadClubBaseInfo", "GetClubMembers"]
+      ]) {
+        final backEnd = _FakeClubBackEnd(ClubType.publicClub, actions);
+        await _pump(tester, ClubDetails(key: UniqueKey(), clubId: "c1"), overrides: [
+          backEndClub.overrideWithValue(backEnd),
+          clubDetailsRequestProvider.overrideWith((ref) => ClubDetailsRequest(clubId: "c1", requestedActions: const [])),
+          getUserProfileProvider.overrideWith((ref) => Completer<UserProfileResponse>().future),
+          getClubsRolesActionsProvider.overrideWith((ref) => Completer<GetClubsRolesActionsResponse>().future),
+        ]);
+        expect(find.byKey(const Key("clubMembersRow")), actions.contains("GetClubMembers") ? findsOneWidget : findsNothing);
+      }
+      await tester.tap(find.byKey(const Key("clubMembersRow")));
+      await tester.pumpAndSettle();
+      expect(find.byType(ClubMembers), findsOneWidget);
+    });
+
+    testWidgets('lists names and roles, marks the current user and offers actions only where allowed', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const []);
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      expect(find.textContaining("smokepilot  (You)", findRichText: true), findsOneWidget);
+      expect(find.textContaining("@"), findsNothing); //no emails
+      expect(find.descendant(of: memberRow("u3"), matching: find.text("Manager")), findsOneWidget);
+      //self and the other Owner: no chevron, not tappable
+      for (final id in ["u1", "u2"]) {
+        final tile = tester.widget<ListTile>(memberRow(id));
+        expect(tile.onTap, isNull, reason: id);
+        expect(tile.trailing, isNull, reason: id);
+      }
+      for (final id in ["u3", "u4"]) {
+        expect(tester.widget<ListTile>(memberRow(id)).onTap, isNotNull, reason: id);
+      }
+      expect(find.byKey(const Key("addMemberRow")), findsOneWidget);
+    });
+
+    testWidgets('no Add member and no actions when the server allows nothing', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const [])..mockMemberRoles["u1"] = ClubMemberDTO.member;
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      expect(find.byKey(const Key("addMemberRow")), findsNothing);
+      expect(find.byIcon(chevronExpand), findsNothing);
+    });
+
+    testWidgets('add member shows the neutral message and refreshes the list', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const []);
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      await tester.tap(find.byKey(const Key("addMemberRow")));
+      await tester.pumpAndSettle();
+      ElevatedButton add() => tester.widget<ElevatedButton>(find.byKey(const Key("addMemberButton")));
+      expect(add().onPressed, isNull);
+      await tester.enterText(find.byKey(const Key("addMemberField")), "   ");
+      await tester.pump();
+      expect(add().onPressed, isNull); //blank input does not count
+      await tester.enterText(find.byKey(const Key("addMemberField")), "  newpilot  ");
+      await tester.pump();
+      expect(add().onPressed, isNotNull);
+
+      await tester.tap(find.byKey(const Key("addMemberButton")));
+      await tester.pumpAndSettle();
+
+      expect(find.text("If a user with this name or email exists, they are now a member."), findsOneWidget);
+      expect(find.byType(ClubMembers), findsOneWidget);
+      expect(find.text("newpilot"), findsOneWidget);
+    });
+
+    testWidgets('change role offers the allowed roles, saves and refreshes', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const []);
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      await tester.tap(memberRow("u4"));
+      await tester.pumpAndSettle();
+      expect(find.text("lonepilot"), findsOneWidget); //member page title
+      await tester.tap(find.byKey(const Key("memberRoleRow")));
+      await tester.pumpAndSettle();
+
+      for (final role in ["Club_Owner", "Club_Manager", "Club_Member"]) {
+        expect(find.byKey(Key("roleOption_$role")), findsOneWidget);
+      }
+      ElevatedButton save() => tester.widget<ElevatedButton>(find.byKey(const Key("saveRoleButton")));
+      expect(save().onPressed, isNull);
+      await tester.tap(find.byKey(const Key("roleOption_Club_Manager")));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key("saveRoleButton")));
+      await tester.pumpAndSettle();
+
+      expect(backEnd.mockMemberRoles["u4"], ClubMemberDTO.manager);
+      expect(find.text("Role changed"), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const Key("memberRoleRow")), matching: find.text("Manager")), findsOneWidget);
+    });
+
+    testWidgets('a refused role change shows the translated reason', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const [])..refuseRoleChangeWith = "MemberRankTooHigh";
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      await tester.tap(memberRow("u3"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("memberRoleRow")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("roleOption_Club_Member")));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key("saveRoleButton")));
+      await tester.pumpAndSettle();
+
+      expect(find.text("You can only manage members with a lower role than yours."), findsOneWidget);
+      expect(find.text("server text"), findsNothing);
+    });
+
+    testWidgets('remove: only icon, title and warning are red; removing refreshes the list', (tester) async {
+      final backEnd = _FakeClubBackEnd(ClubType.publicClub, const []);
+      await _pump(tester, const ClubMembers(clubId: "c1", clubName: "Test Club"), overrides: membersOverrides(backEnd));
+
+      await tester.tap(memberRow("u4"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("removeMemberRow")));
+      await tester.pumpAndSettle();
+
+      expect(_textColor(tester, const Key("removeMemberTitle")), primaryWarningButtonEnabledColorLight);
+      expect(_textColor(tester, const Key("removeMemberWarning")), primaryWarningButtonEnabledColorLight);
+      expect(_textColor(tester, const Key("removeMemberConsequences")), isNot(primaryWarningButtonEnabledColorLight));
+      expect(find.text('"lonepilot" will be removed from the club "Test Club".'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key("removeMemberButton")));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Member removed"), findsOneWidget);
+      expect(find.byType(ClubMembers), findsOneWidget);
+      expect(memberRow("u4"), findsNothing);
     });
   });
 }

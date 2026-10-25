@@ -13,6 +13,12 @@ import '../../../Core/DTO/Club/leave_club_response.dart';
 import '../../../Core/DTO/Club/club_details_response.dart';
 import '../../../Core/DTO/Club/join_club_request.dart';
 import '../../../Core/DTO/Club/join_club_response.dart';
+import '../../../Core/DTO/Club/add_club_member_request.dart';
+import '../../../Core/DTO/Club/club_member_change_response.dart';
+import '../../../Core/DTO/Club/get_club_members_request.dart';
+import '../../../Core/DTO/Club/get_club_members_response.dart';
+import '../../../Core/DTO/Club/remove_club_member_request.dart';
+import '../../../Core/DTO/Club/set_club_member_role_request.dart';
 import '../api_call.dart';
 
 //we need it as an abstract class for mock and real implementations!
@@ -27,6 +33,10 @@ abstract class IApiClub extends ApiCall {
   static const String deleteClubHandler = "deleteclub";
   static const String changeClubPasswordHandler = "changeclubpassword";
   static const String changeClubTypeHandler = "changeclubtype";
+  static const String getClubMembersHandler = "getclubmembers";
+  static const String addClubMemberHandler = "addclubmember";
+  static const String setClubMemberRoleHandler = "setclubmemberrole";
+  static const String removeClubMemberHandler = "removeclubmember";
 
   //get the list of public clubs
   Future<List<String>> getPublicClubs();
@@ -51,4 +61,16 @@ abstract class IApiClub extends ApiCall {
 
   //change the club type (public / non-listed)
   Future<ChangeClubTypeResponse> changeClubType({required ChangeClubTypeRequest changeClubTypeRequest});
+
+  //members of a club with the actions the current user may perform on each of them
+  Future<GetClubMembersResponse> getClubMembers({required GetClubMembersRequest getClubMembersRequest});
+
+  //add an existing user by exact user name or email; the answer does not reveal whether the user exists
+  Future<ClubMemberChangeResponse> addClubMember({required AddClubMemberRequest addClubMemberRequest});
+
+  //set the club role of a member
+  Future<ClubMemberChangeResponse> setClubMemberRole({required SetClubMemberRoleRequest setClubMemberRoleRequest});
+
+  //remove a member from the club
+  Future<ClubMemberChangeResponse> removeClubMember({required RemoveClubMemberRequest removeClubMemberRequest});
 }

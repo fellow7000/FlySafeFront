@@ -8,8 +8,32 @@ class ClubErrorCodes {
   static const String userPasswordMismatch = "UserPasswordMismatch";
   static const String clubNameConfirmationMismatch = "ClubNameConfirmationMismatch";
   static const String otherOwnersMustApprove = "OtherOwnersMustApprove";
+  static const String cannotChangeOwnMembership = "CannotChangeOwnMembership";
+  static const String memberRankTooHigh = "MemberRankTooHigh";
+  static const String lastOwnerCannotBeRemoved = "LastOwnerCannotBeRemoved";
+  static const String userNotMember = "UserNotMember";
+  static const String actionNotAllowed = "ActionNotAllowed";
+  //app-side codes for HTTP errors of the member calls that have no body
+  static const String memberInputInvalid = "MemberInputInvalid";
+  static const String memberRequestInvalid = "MemberRequestInvalid";
+  static const String clubNotFound = "ClubNotFound";
+  static const String tooManyAttempts = "TooManyAttempts";
 
-  static const List<String> localized = [lastOwnerCannotLeave, userPasswordMismatch, clubNameConfirmationMismatch, otherOwnersMustApprove];
+  static const List<String> localized = [
+    lastOwnerCannotLeave,
+    userPasswordMismatch,
+    clubNameConfirmationMismatch,
+    otherOwnersMustApprove,
+    cannotChangeOwnMembership,
+    memberRankTooHigh,
+    lastOwnerCannotBeRemoved,
+    userNotMember,
+    actionNotAllowed,
+    memberInputInvalid,
+    memberRequestInvalid,
+    clubNotFound,
+    tooManyAttempts,
+  ];
 }
 
 class ClubErrorHelper {
